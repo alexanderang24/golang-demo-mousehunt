@@ -14,6 +14,7 @@ type UserRepository interface {
 	InsertUser(user structs.User) (structs.User, error)
 	UpdateUser(user structs.User) (structs.User, error)
 	DeleteUser(user structs.User) (structs.User, error)
+	GetUserByUsername(username string) (structs.User, error)
 }
 
 type userRepository struct {
@@ -61,6 +62,20 @@ func (r *userRepository) GetUser(user structs.User) (structs.User, error) {
 	err = rows.Scan(&result.ID, &result.Username, &result.Password, &result.Role, &result.Gold, &result.LocationID, &result.TrapID, &result.CreatedAt, &result.UpdatedAt)
 	if result == (structs.User{}) {
 		err = errors.New("user with id " + strconv.Itoa(int(user.ID)) + " not found")
+		return result, err
+	}
+	return result, nil
+}
+
+func (r *userRepository) GetUserByUsername(username string) (structs.User, error) {
+	var result structs.User
+	sqlCheck := `SELECT * FROM "user" WHERE username = $1`
+
+	rows := r.db.QueryRow(sqlCheck, username)
+
+	err = rows.Scan(&result.ID, &result.Username, &result.Password, &result.Role, &result.Gold, &result.LocationID, &result.TrapID, &result.CreatedAt, &result.UpdatedAt)
+	if result == (structs.User{}) {
+		err = errors.New("username " + username + " not found")
 		return result, err
 	}
 	return result, nil

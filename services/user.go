@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"golang-demo-mousehunt/middleware"
 	"golang-demo-mousehunt/repository"
 	"golang-demo-mousehunt/structs"
 )
@@ -13,6 +14,7 @@ type UserService interface {
 	InsertUser(user structs.User) (structs.User, error)
 	UpdateUser(user structs.User) (structs.User, error)
 	DeleteUser(user structs.User) (structs.User, error)
+	Login(user structs.User) (structs.User, error)
 }
 
 type userService struct {
@@ -82,6 +84,26 @@ func (s *userService) DeleteUser(user structs.User) (structs.User, error) {
 	if err != nil {
 		return user, err
 	} else {
+		return user, nil
+	}
+}
+
+func (s *userService) Login(user structs.User) (structs.User, error) {
+	// check username and password correct
+	userInDb, err := s.repository.GetUserByUsername(user.Username)
+	if err != nil {
+		return user, err
+	}
+	if user.Password != userInDb.Password {
+		err = errors.New("incorrect password")
+		return user, err
+	}
+
+	token, err := middleware.GenerateJWT(userInDb.Username, userInDb.Role)
+	if err != nil {
+		return user, err
+	} else {
+		user.Token = token
 		return user, nil
 	}
 }

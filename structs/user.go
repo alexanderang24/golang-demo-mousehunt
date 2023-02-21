@@ -10,4 +10,5 @@ type User struct {
 	TrapID     int64  `json:"trap_id"`
 	CreatedAt  string `json:"created_at"`
 	UpdatedAt  string `json:"updated_at"`
+	Token      string
 }

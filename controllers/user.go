@@ -131,3 +131,24 @@ func (c *userController) DeleteUser(ctx *gin.Context) {
 	result := fmt.Sprintf("Success delete user with ID: %d and username: %s", user.ID, user.Username)
 	ctx.JSON(http.StatusOK, gin.H{ "result": result })
 }
+
+func (c *userController) Login(ctx *gin.Context) {
+	var user structs.User
+
+	err := ctx.ShouldBindJSON(&user)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	user, err = c.service.Login(user)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{ "result": user.Token })
+}

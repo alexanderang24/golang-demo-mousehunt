@@ -52,9 +52,9 @@ func main() {
 	trap := router.Group("/trap")
 	trap.GET("", trapController.GetAllTraps)
 	trap.GET("/:id", trapController.GetTrap)
-	trap.POST("", middleware.BasicAuth, trapController.InsertTrap)
-	trap.PUT("/:id", middleware.BasicAuth, trapController.UpdateTrap)
-	trap.DELETE("/:id", middleware.BasicAuth, trapController.DeleteTrap)
+	trap.POST("", middleware.VerifyJWT, trapController.InsertTrap)
+	trap.PUT("/:id", middleware.VerifyJWT, trapController.UpdateTrap)
+	trap.DELETE("/:id", middleware.VerifyJWT, trapController.DeleteTrap)
 
 	// location
 	locationRepo := repository.NewLocationRepository(db)
@@ -63,9 +63,9 @@ func main() {
 	location := router.Group("/location")
 	location.GET("", locationController.GetAllLocations)
 	location.GET("/:id", locationController.GetLocation)
-	location.POST("", middleware.BasicAuth, locationController.InsertLocation)
-	location.PUT("/:id", middleware.BasicAuth, locationController.UpdateLocation)
-	location.DELETE("/:id", middleware.BasicAuth, locationController.DeleteLocation)
+	location.POST("", middleware.VerifyJWT, locationController.InsertLocation)
+	location.PUT("/:id", middleware.VerifyJWT, locationController.UpdateLocation)
+	location.DELETE("/:id", middleware.VerifyJWT, locationController.DeleteLocation)
 
 	// mouse
 	mouseRepo := repository.NewMouseRepository(db)
@@ -74,9 +74,9 @@ func main() {
 	mouse := router.Group("/mouse")
 	mouse.GET("", mouseController.GetAllMice)
 	mouse.GET("/:id", mouseController.GetMouse)
-	mouse.POST("", middleware.BasicAuth, mouseController.InsertMouse)
-	mouse.PUT("/:id", middleware.BasicAuth, mouseController.UpdateMouse)
-	mouse.DELETE("/:id", middleware.BasicAuth, mouseController.DeleteMouse)
+	mouse.POST("", middleware.VerifyJWT, mouseController.InsertMouse)
+	mouse.PUT("/:id", middleware.VerifyJWT, mouseController.UpdateMouse)
+	mouse.DELETE("/:id", middleware.VerifyJWT, mouseController.DeleteMouse)
 
 	// user - admin
 	userRepo := repository.NewUserRepository(db)
@@ -85,9 +85,9 @@ func main() {
 	user := router.Group("/user")
 	user.GET("", userController.GetAllUsers)
 	user.GET("/:id", userController.GetUser)
-	user.POST("", middleware.BasicAuth, userController.InsertUser)
-	user.PUT("/:id", middleware.BasicAuth, userController.UpdateUser)
-	user.DELETE("/:id", middleware.BasicAuth, userController.DeleteUser)
+	user.POST("", middleware.VerifyJWT, middleware.AdminOnly, userController.InsertUser)
+	user.PUT("/:id", middleware.VerifyJWT, userController.UpdateUser)
+	user.DELETE("/:id", middleware.VerifyJWT, userController.DeleteUser)
 
 
 	// hunt history
@@ -98,10 +98,11 @@ func main() {
 
 	// player APIs
 	user.POST("/register", userController.Register)
+	user.POST("/login", userController.Login)
 	//trap.POST("/trap/:id/buy", middleware.BasicAuth, trapController.BuyTrap)
 	//location.POST("/:id/travel", middleware.BasicAuth, locationController.TravelToLocation)
 	hunt.GET("", huntController.GetAllHuntHistories)
-	hunt.POST("", middleware.BasicAuth, huntController.DoHunt)
+	hunt.POST("", middleware.VerifyJWT, huntController.DoHunt)
 
 	err :=router.Run(":" + os.Getenv("PORT"))
 	if err != nil {
