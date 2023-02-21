@@ -109,20 +109,3 @@ func (c *locationController) DeleteLocation(ctx *gin.Context) {
 	result := fmt.Sprintf("Success delete location with ID: %d and name: %s", location.ID, location.Name)
 	ctx.JSON(http.StatusOK, gin.H{ "result": result })
 }
-
-//func GetBooksByCategory(c *gin.Context) {
-//	var result gin.H
-//
-//	var cat structs.Location
-//	id, _ := strconv.Atoi(c.Param("id"))
-//	cat.ID = int64(id)
-//
-//	cats, err := repository.GetBooksByCategory(database.DbConnection, cat)
-//	if err != nil {
-//		result = gin.H{ "error": err }
-//	} else {
-//		result = gin.H{ "result": cats }
-//	}
-//
-//	c.JSON(http.StatusOK, result)
-//}

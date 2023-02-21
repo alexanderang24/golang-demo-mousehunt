@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"golang-demo-mousehunt/repository"
 	"golang-demo-mousehunt/structs"
 )
@@ -44,6 +45,11 @@ func (s *trapService) GetTrap(trap structs.Trap) (structs.Trap, error) {
 }
 
 func (s *trapService) InsertTrap(trap structs.Trap) (structs.Trap, error) {
+	if trap.MaxPower < trap.MinPower {
+		err = errors.New("max power should not be lower than min power")
+		return trap, err
+	}
+
 	trap, err = s.repository.InsertTrap(trap)
 	if err != nil {
 		return trap, err
@@ -53,6 +59,11 @@ func (s *trapService) InsertTrap(trap structs.Trap) (structs.Trap, error) {
 }
 
 func (s *trapService) UpdateTrap(trap structs.Trap) (structs.Trap, error) {
+	if trap.MaxPower < trap.MinPower {
+		err = errors.New("max power should not be lower than min power")
+		return trap, err
+	}
+
 	trap, err = s.repository.UpdateTrap(trap)
 	if err != nil {
 		return trap, err

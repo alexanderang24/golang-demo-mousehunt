@@ -55,7 +55,6 @@ func main() {
 	trap.POST("", middleware.BasicAuth, trapController.InsertTrap)
 	trap.PUT("/:id", middleware.BasicAuth, trapController.UpdateTrap)
 	trap.DELETE("/:id", middleware.BasicAuth, trapController.DeleteTrap)
-	//trap.POST("/trap/:id/buy", middleware.BasicAuth, trapController.BuyTrap)
 
 	// location
 	locationRepo := repository.NewLocationRepository(db)
@@ -67,7 +66,42 @@ func main() {
 	location.POST("", middleware.BasicAuth, locationController.InsertLocation)
 	location.PUT("/:id", middleware.BasicAuth, locationController.UpdateLocation)
 	location.DELETE("/:id", middleware.BasicAuth, locationController.DeleteLocation)
-	//location.POST("/trap/:id/travel", middleware.BasicAuth, locationController.TravelToLocation)
+
+	// mouse
+	mouseRepo := repository.NewMouseRepository(db)
+	mouseService := services.NewMouseService(mouseRepo)
+	mouseController := controllers.NewMouseController(mouseService)
+	mouse := router.Group("/mouse")
+	mouse.GET("", mouseController.GetAllMice)
+	mouse.GET("/:id", mouseController.GetMouse)
+	mouse.POST("", middleware.BasicAuth, mouseController.InsertMouse)
+	mouse.PUT("/:id", middleware.BasicAuth, mouseController.UpdateMouse)
+	mouse.DELETE("/:id", middleware.BasicAuth, mouseController.DeleteMouse)
+
+	// user - admin
+	userRepo := repository.NewUserRepository(db)
+	userService := services.NewUserService(userRepo)
+	userController := controllers.NewUserController(userService)
+	user := router.Group("/user")
+	user.GET("", userController.GetAllUsers)
+	user.GET("/:id", userController.GetUser)
+	user.POST("", middleware.BasicAuth, userController.InsertUser)
+	user.PUT("/:id", middleware.BasicAuth, userController.UpdateUser)
+	user.DELETE("/:id", middleware.BasicAuth, userController.DeleteUser)
+
+
+	// hunt history
+	huntRepo := repository.NewHuntHistoryRepository(db)
+	huntService := services.NewHistoryService(huntRepo)
+	huntController := controllers.NewHuntHistoryController(huntService)
+	hunt := router.Group("/hunt")
+
+	// player APIs
+	user.POST("/register", userController.Register)
+	//trap.POST("/trap/:id/buy", middleware.BasicAuth, trapController.BuyTrap)
+	//location.POST("/:id/travel", middleware.BasicAuth, locationController.TravelToLocation)
+	hunt.GET("", huntController.GetAllHuntHistories)
+	hunt.POST("", middleware.BasicAuth, huntController.DoHunt)
 
 	err :=router.Run(":" + os.Getenv("PORT"))
 	if err != nil {

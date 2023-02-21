@@ -22,5 +22,5 @@ func DbMigrate(dbParam *sql.DB) {
 	}
 
 	DbConnection = dbParam
-	fmt.Println("Applied", n, " migrations!")
+	fmt.Println("Applied", n, "migrations!")
 }
