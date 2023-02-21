@@ -55,7 +55,19 @@ func main() {
 	trap.POST("", middleware.BasicAuth, trapController.InsertTrap)
 	trap.PUT("/:id", middleware.BasicAuth, trapController.UpdateTrap)
 	trap.DELETE("/:id", middleware.BasicAuth, trapController.DeleteTrap)
-	//router.POST("/trap/:id/buy", trapController.BuyTrap)
+	//trap.POST("/trap/:id/buy", middleware.BasicAuth, trapController.BuyTrap)
+
+	// location
+	locationRepo := repository.NewLocationRepository(db)
+	locationService := services.NewLocationService(locationRepo)
+	locationController := controllers.NewLocationController(locationService)
+	location := router.Group("/location")
+	location.GET("", locationController.GetAllLocations)
+	location.GET("/:id", locationController.GetLocation)
+	location.POST("", middleware.BasicAuth, locationController.InsertLocation)
+	location.PUT("/:id", middleware.BasicAuth, locationController.UpdateLocation)
+	location.DELETE("/:id", middleware.BasicAuth, locationController.DeleteLocation)
+	//location.POST("/trap/:id/travel", middleware.BasicAuth, locationController.TravelToLocation)
 
 	err :=router.Run(":" + os.Getenv("PORT"))
 	if err != nil {
