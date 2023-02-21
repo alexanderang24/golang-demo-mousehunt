@@ -57,7 +57,6 @@ func main() {
 	trap.DELETE("/:id", middleware.BasicAuth, trapController.DeleteTrap)
 	//router.POST("/trap/:id/buy", trapController.BuyTrap)
 
-	//err := router.Run(":8080")
 	err :=router.Run(":" + os.Getenv("PORT"))
 	if err != nil {
 		return

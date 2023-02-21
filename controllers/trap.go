@@ -24,7 +24,9 @@ func (c *trapController) GetAllTraps(ctx *gin.Context) {
 			"error": err.Error(),
 		})
 	} else {
-		ctx.JSON(http.StatusOK, traps)
+		ctx.JSON(http.StatusOK, gin.H{
+			"results": traps,
+		})
 	}
 }
 

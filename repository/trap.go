@@ -46,7 +46,7 @@ func (r *trapRepository) GetAllTraps() ([]structs.Trap, error) {
 	for rows.Next() {
 		var trap = structs.Trap{}
 
-		err = rows.Scan(&trap.ID, &trap.Name, &trap.Power, &trap.Price, &trap.CreatedAt, &trap.UpdatedAt)
+		err = rows.Scan(&trap.ID, &trap.Name, &trap.Description, &trap.Power, &trap.Price, &trap.CreatedAt, &trap.UpdatedAt)
 		if err != nil {
 			return results, err
 		}
@@ -62,7 +62,7 @@ func (r *trapRepository) GetTrap(trap structs.Trap) (structs.Trap, error) {
 
 	rows := r.db.QueryRow(sqlCheck, trap.ID)
 
-	err = rows.Scan(&result.ID, &result.Name, &result.Power, &result.Price, &result.CreatedAt, &result.UpdatedAt)
+	err = rows.Scan(&result.ID, &result.Name, &result.Description, &result.Power, &result.Price, &result.CreatedAt, &result.UpdatedAt)
 	if result == (structs.Trap{}) {
 		err = errors.New("trap with id " + strconv.Itoa(int(trap.ID)) + " not found")
 		return result, err
@@ -72,8 +72,8 @@ func (r *trapRepository) GetTrap(trap structs.Trap) (structs.Trap, error) {
 
 func (r *trapRepository) InsertTrap(trap structs.Trap) (structs.Trap, error) {
 	now := time.Now()
-	sqlStatement := "INSERT INTO trap(name, power, price, created_at, updated_at) VALUES($1, $2, $3, $4, $5) RETURNING id"
-	rows := r.db.QueryRow(sqlStatement, trap.Name, trap.Power, trap.Price, now, now)
+	sqlStatement := "INSERT INTO trap(name, description, power, price, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6) RETURNING id"
+	rows := r.db.QueryRow(sqlStatement, trap.Name, trap.Description, trap.Power, trap.Price, now, now)
 	if rows.Err() != nil {
 		err = rows.Err()
 		return trap, err
@@ -91,8 +91,8 @@ func (r *trapRepository) UpdateTrap(trap structs.Trap) (structs.Trap, error) {
 	if err != nil {
 		return trap, err
 	}
-	sqlStatement := "UPDATE trap SET name = $1, power = $2, price = $3, updated_at = $4 WHERE id = $5"
-	rows := r.db.QueryRow(sqlStatement, trap.Name, trap.Power, trap.Price, time.Now(), trap.ID)
+	sqlStatement := "UPDATE trap SET name = $1, description = $2, power = $3, price = $4, updated_at = $5 WHERE id = $6"
+	rows := r.db.QueryRow(sqlStatement, trap.Name, trap.Description, trap.Power, trap.Price, time.Now(), trap.ID)
 	if rows.Err() != nil {
 		err = rows.Err()
 		return trap, err

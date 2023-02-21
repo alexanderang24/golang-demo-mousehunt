@@ -3,18 +3,20 @@
 
 CREATE TABLE trap
 (
-    id         SERIAL PRIMARY KEY,
-    name       VARCHAR(256),
-    power      INT,
-    price      INT,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP
+    id          SERIAL PRIMARY KEY,
+    name        VARCHAR(256),
+    description VARCHAR(256),
+    power       INT,
+    price       INT,
+    created_at  TIMESTAMP,
+    updated_at  TIMESTAMP
 );
 
 CREATE TABLE location
 (
     id          SERIAL PRIMARY KEY,
     name        VARCHAR(256),
+    description VARCHAR(256),
     travel_cost INT,
     created_at  TIMESTAMP,
     updated_at  TIMESTAMP
@@ -24,6 +26,7 @@ CREATE TABLE mouse
 (
     id          SERIAL PRIMARY KEY,
     name        VARCHAR(256),
+    description VARCHAR(256),
     power       INT,
     gold        INT,
     location_id SERIAL,
