@@ -31,3 +31,6 @@ Collection's request folder are arranged as follows:
 All requests are complemented by examples that cover all possible responses. You can choose example using dropdown menu on the top-right side of the right column.
 
 <img src="https://content.pstmn.io/7e9b191d-5c36-426b-8848-58c613d2b79b/ZXhhbXBsZS5wbmc=" alt="Request%20example">
+<br>
+
+Full API documentation can be read here: https://documenter.getpostman.com/view/6701657/2s93CLstan
