@@ -3,32 +3,17 @@ package repository
 import (
 	"database/sql"
 	"errors"
+	"golang-demo-mousehunt/database"
 	"golang-demo-mousehunt/structs"
 	"strconv"
 	"time"
 )
 
-type MouseRepository interface {
-	GetAllMice() ([]structs.Mouse, error)
-	GetMouse(mouse structs.Mouse) (structs.Mouse, error)
-	InsertMouse(mouse structs.Mouse) (structs.Mouse, error)
-	UpdateMouse(mouse structs.Mouse) (structs.Mouse, error)
-	DeleteMouse(mouse structs.Mouse) (structs.Mouse, error)
-}
-
-type mouseRepository struct {
-	db *sql.DB
-}
-
-func NewMouseRepository(db *sql.DB) *mouseRepository {
-	return &mouseRepository{db}
-}
-
-func (r *mouseRepository) GetAllMice() ([]structs.Mouse, error) {
+func GetAllMice(db *sql.DB) ([]structs.Mouse, error) {
 	var results []structs.Mouse
 	sqlStatement := "SELECT * FROM mouse ORDER BY id"
 
-	var rows, err = r.db.Query(sqlStatement)
+	var rows, err = db.Query(sqlStatement)
 	if err != nil {
 		return results, err
 	}
@@ -52,11 +37,11 @@ func (r *mouseRepository) GetAllMice() ([]structs.Mouse, error) {
 	return results, nil
 }
 
-func (r *mouseRepository) GetMouse(mouse structs.Mouse) (structs.Mouse, error) {
+func GetMouse(db *sql.DB, mouse structs.Mouse) (structs.Mouse, error) {
 	var result structs.Mouse
 	sqlCheck := "SELECT * FROM mouse WHERE id = $1"
 
-	rows := r.db.QueryRow(sqlCheck, mouse.ID)
+	rows := db.QueryRow(sqlCheck, mouse.ID)
 
 	err = rows.Scan(&result.ID, &result.Name, &result.Description, &result.MinPower, &result.MaxPower, &result.Gold, &result.LocationID, &result.CreatedAt, &result.UpdatedAt)
 	if result == (structs.Mouse{}) {
@@ -66,16 +51,18 @@ func (r *mouseRepository) GetMouse(mouse structs.Mouse) (structs.Mouse, error) {
 	return result, nil
 }
 
-func (r *mouseRepository) InsertMouse(mouse structs.Mouse) (structs.Mouse, error) {
-	lr := locationRepository{r.db}
-	_, err = lr.GetLocation(structs.Location{ID: mouse.LocationID})
+func InsertMouse(db *sql.DB, mouse structs.Mouse) (structs.Mouse, error) {
+	var location = structs.Location{
+		ID: mouse.LocationID,
+	}
+	_, err = GetLocation(database.DbConnection, location)
 	if err != nil {
 		return mouse, err
 	}
 
 	now := time.Now()
 	sqlStatement := "INSERT INTO mouse(name, description, min_power, max_power, gold, location_id, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id"
-	rows := r.db.QueryRow(sqlStatement, mouse.Name, mouse.Description, mouse.MinPower, mouse.MaxPower, mouse.Gold, mouse.LocationID, now, now)
+	rows := db.QueryRow(sqlStatement, mouse.Name, mouse.Description, mouse.MinPower, mouse.MaxPower, mouse.Gold, mouse.LocationID, now, now)
 	if rows.Err() != nil {
 		err = rows.Err()
 		return mouse, err
@@ -88,20 +75,22 @@ func (r *mouseRepository) InsertMouse(mouse structs.Mouse) (structs.Mouse, error
 	}
 }
 
-func (r *mouseRepository) UpdateMouse(mouse structs.Mouse) (structs.Mouse, error) {
-	lr := locationRepository{r.db}
-	_, err = lr.GetLocation(structs.Location{ID: mouse.LocationID})
+func UpdateMouse(db *sql.DB, mouse structs.Mouse) (structs.Mouse, error) {
+	var location = structs.Location{
+		ID: mouse.LocationID,
+	}
+	_, err = GetLocation(database.DbConnection, location)
 	if err != nil {
 		return mouse, err
 	}
 
-	_, err = r.GetMouse(mouse)
+	_, err = GetMouse(db, mouse)
 	if err != nil {
 		return mouse, err
 	}
 
 	sqlStatement := "UPDATE mouse SET name = $1, description = $2, min_power = $3, max_power = $4, gold = $5, location_id = $6, updated_at = $7 WHERE id = $8"
-	rows := r.db.QueryRow(sqlStatement, mouse.Name, mouse.Description, mouse.MinPower, mouse.MaxPower, mouse.Gold, mouse.LocationID, time.Now(), mouse.ID)
+	rows := db.QueryRow(sqlStatement, mouse.Name, mouse.Description, mouse.MinPower, mouse.MaxPower, mouse.Gold, mouse.LocationID, time.Now(), mouse.ID)
 	if rows.Err() != nil {
 		err = rows.Err()
 		return mouse, err
@@ -110,13 +99,13 @@ func (r *mouseRepository) UpdateMouse(mouse structs.Mouse) (structs.Mouse, error
 	}
 }
 
-func (r *mouseRepository) DeleteMouse(mouse structs.Mouse) (structs.Mouse, error) {
-	mouse, err = r.GetMouse(mouse)
+func DeleteMouse(db *sql.DB, mouse structs.Mouse) (structs.Mouse, error) {
+	mouse, err = GetMouse(db, mouse)
 	if err != nil {
 		return mouse, err
 	}
 	sqlStatement := "DELETE FROM mouse WHERE id = $1"
-	rows := r.db.QueryRow(sqlStatement, mouse.ID)
+	rows := db.QueryRow(sqlStatement, mouse.ID)
 	if rows.Err() != nil {
 		err = rows.Err()
 		return mouse, err

@@ -8,16 +8,8 @@ import (
 	"net/http"
 )
 
-type huntHistoryController struct {
-	service services.HuntHistoryService
-}
-
-func NewHuntHistoryController(service services.HuntHistoryService) *huntHistoryController {
-	return &huntHistoryController{service}
-}
-
-func (c *huntHistoryController) GetAllHuntHistories(ctx *gin.Context) {
-	histories, err := c.service.GetAllHistories()
+func GetAllHuntHistories(ctx *gin.Context) {
+	histories, err := services.GetAllHistories()
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -29,7 +21,7 @@ func (c *huntHistoryController) GetAllHuntHistories(ctx *gin.Context) {
 	}
 }
 
-func (c *huntHistoryController) DoHunt(ctx *gin.Context) {
+func DoHunt(ctx *gin.Context) {
 	var history structs.HuntHistory
 
 	err := ctx.ShouldBindJSON(&history)
@@ -40,7 +32,7 @@ func (c *huntHistoryController) DoHunt(ctx *gin.Context) {
 		return
 	}
 
-	history, err = c.service.DoHunt(history)
+	history, err = services.DoHunt(history)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),

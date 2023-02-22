@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"golang-demo-mousehunt/database"
 	"golang-demo-mousehunt/repository"
 	"golang-demo-mousehunt/structs"
 )
@@ -10,25 +11,8 @@ var (
 	err error
 )
 
-type TrapService interface {
-	GetAllTraps() ([]structs.Trap, error)
-	GetTrap(trap structs.Trap) (structs.Trap, error)
-	InsertTrap(trap structs.Trap) (structs.Trap, error)
-	UpdateTrap(trap structs.Trap) (structs.Trap, error)
-	DeleteTrap(trap structs.Trap) (structs.Trap, error)
-	BuyTrap(trap structs.Trap, user structs.User) (structs.User, error)
-}
-
-type trapService struct {
-	repository repository.TrapRepository
-}
-
-func NewTrapService(repo repository.TrapRepository) *trapService {
-	return &trapService{repo}
-}
-
-func (s *trapService) GetAllTraps() ([]structs.Trap, error) {
-	var traps, err = s.repository.GetAllTraps()
+func GetAllTraps() ([]structs.Trap, error) {
+	var traps, err = repository.GetAllTraps(database.DbConnection)
 	if err != nil {
 		return traps, err
 	} else {
@@ -36,8 +20,8 @@ func (s *trapService) GetAllTraps() ([]structs.Trap, error) {
 	}
 }
 
-func (s *trapService) GetTrap(trap structs.Trap) (structs.Trap, error) {
-	trap, err = s.repository.GetTrap(trap)
+func GetTrap(trap structs.Trap) (structs.Trap, error) {
+	trap, err = repository.GetTrap(database.DbConnection, trap)
 	if err != nil {
 		return trap, err
 	} else {
@@ -45,13 +29,13 @@ func (s *trapService) GetTrap(trap structs.Trap) (structs.Trap, error) {
 	}
 }
 
-func (s *trapService) InsertTrap(trap structs.Trap) (structs.Trap, error) {
+func InsertTrap(trap structs.Trap) (structs.Trap, error) {
 	if trap.MaxPower < trap.MinPower {
 		err = errors.New("max power should not be lower than min power")
 		return trap, err
 	}
 
-	trap, err = s.repository.InsertTrap(trap)
+	trap, err = repository.InsertTrap(database.DbConnection, trap)
 	if err != nil {
 		return trap, err
 	} else {
@@ -59,13 +43,13 @@ func (s *trapService) InsertTrap(trap structs.Trap) (structs.Trap, error) {
 	}
 }
 
-func (s *trapService) UpdateTrap(trap structs.Trap) (structs.Trap, error) {
+func UpdateTrap(trap structs.Trap) (structs.Trap, error) {
 	if trap.MaxPower < trap.MinPower {
 		err = errors.New("max power should not be lower than min power")
 		return trap, err
 	}
 
-	trap, err = s.repository.UpdateTrap(trap)
+	trap, err = repository.UpdateTrap(database.DbConnection, trap)
 	if err != nil {
 		return trap, err
 	} else {
@@ -73,8 +57,8 @@ func (s *trapService) UpdateTrap(trap structs.Trap) (structs.Trap, error) {
 	}
 }
 
-func (s *trapService) DeleteTrap(trap structs.Trap) (structs.Trap, error) {
-	trap, err = s.repository.DeleteTrap(trap)
+func DeleteTrap(trap structs.Trap) (structs.Trap, error) {
+	trap, err = repository.DeleteTrap(database.DbConnection, trap)
 	if err != nil {
 		return trap, err
 	} else {
@@ -82,19 +66,18 @@ func (s *trapService) DeleteTrap(trap structs.Trap) (structs.Trap, error) {
 	}
 }
 
-func (s *trapService) BuyTrap(trap structs.Trap, user structs.User) (structs.User, error) {
-	if user.Gold < trap.Price {
-		err := errors.New("not enough gold to buy trap")
-		return user, err
-	} else if user.TrapID == trap.ID {
+func BuyTrap(trap structs.Trap, user structs.User) (structs.User, error) {
+	if user.TrapID == trap.ID {
 		err := errors.New("you already have this trap")
+		return user, err
+	} else if user.Gold < trap.Price {
+		err := errors.New("not enough gold to buy trap")
 		return user, err
 	} else {
 		user.Gold = user.Gold - trap.Price
 		user.TrapID = trap.ID
 
-		var ur repository.UserRepository
-		user, err = ur.UpdateUser(user)
+		user, err = UpdateUser(user)
 		return user, nil
 	}
 }

@@ -1,28 +1,14 @@
 package services
 
 import (
+	"errors"
+	"golang-demo-mousehunt/database"
 	"golang-demo-mousehunt/repository"
 	"golang-demo-mousehunt/structs"
 )
 
-type LocationService interface {
-	GetAllLocations() ([]structs.Location, error)
-	GetLocation(location structs.Location) (structs.Location, error)
-	InsertLocation(location structs.Location) (structs.Location, error)
-	UpdateLocation(location structs.Location) (structs.Location, error)
-	DeleteLocation(location structs.Location) (structs.Location, error)
-}
-
-type locationService struct {
-	repository repository.LocationRepository
-}
-
-func NewLocationService(repo repository.LocationRepository) *locationService {
-	return &locationService{repo}
-}
-
-func (s *locationService) GetAllLocations() ([]structs.Location, error) {
-	var locations, err = s.repository.GetAllLocations()
+func GetAllLocations() ([]structs.Location, error) {
+	var locations, err = repository.GetAllLocations(database.DbConnection, )
 	if err != nil {
 		return locations, err
 	} else {
@@ -30,8 +16,8 @@ func (s *locationService) GetAllLocations() ([]structs.Location, error) {
 	}
 }
 
-func (s *locationService) GetLocation(location structs.Location) (structs.Location, error) {
-	location, err = s.repository.GetLocation(location)
+func GetLocation(location structs.Location) (structs.Location, error) {
+	location, err = repository.GetLocation(database.DbConnection, location)
 	if err != nil {
 		return location, err
 	} else {
@@ -39,8 +25,8 @@ func (s *locationService) GetLocation(location structs.Location) (structs.Locati
 	}
 }
 
-func (s *locationService) InsertLocation(location structs.Location) (structs.Location, error) {
-	location, err = s.repository.InsertLocation(location)
+func InsertLocation(location structs.Location) (structs.Location, error) {
+	location, err = repository.InsertLocation(database.DbConnection, location)
 	if err != nil {
 		return location, err
 	} else {
@@ -48,8 +34,8 @@ func (s *locationService) InsertLocation(location structs.Location) (structs.Loc
 	}
 }
 
-func (s *locationService) UpdateLocation(location structs.Location) (structs.Location, error) {
-	location, err = s.repository.UpdateLocation(location)
+func UpdateLocation(location structs.Location) (structs.Location, error) {
+	location, err = repository.UpdateLocation(database.DbConnection, location)
 	if err != nil {
 		return location, err
 	} else {
@@ -57,11 +43,27 @@ func (s *locationService) UpdateLocation(location structs.Location) (structs.Loc
 	}
 }
 
-func (s *locationService) DeleteLocation(location structs.Location) (structs.Location, error) {
-	location, err = s.repository.DeleteLocation(location)
+func DeleteLocation(location structs.Location) (structs.Location, error) {
+	location, err = repository.DeleteLocation(database.DbConnection, location)
 	if err != nil {
 		return location, err
 	} else {
 		return location, nil
+	}
+}
+
+func TravelToLocation(location structs.Location, user structs.User) (structs.User, error) {
+	if user.LocationID == location.ID {
+		err := errors.New("you already on this location")
+		return user, err
+	} else if user.Gold < location.TravelCost {
+		err := errors.New("not enough gold to travel")
+		return user, err
+	} else {
+		user.Gold = user.Gold - location.TravelCost
+		user.LocationID = location.ID
+
+		user, err = UpdateUser(user)
+		return user, nil
 	}
 }

@@ -9,16 +9,8 @@ import (
 	"strconv"
 )
 
-type mouseController struct {
-	service services.MouseService
-}
-
-func NewMouseController(service services.MouseService) *mouseController {
-	return &mouseController{service}
-}
-
-func (c *mouseController) GetAllMice(ctx *gin.Context) {
-	mice, err := c.service.GetAllMice()
+func GetAllMice(ctx *gin.Context) {
+	mice, err := services.GetAllMice()
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -30,12 +22,12 @@ func (c *mouseController) GetAllMice(ctx *gin.Context) {
 	}
 }
 
-func (c *mouseController) GetMouse(ctx *gin.Context) {
+func GetMouse(ctx *gin.Context) {
 	var mouse structs.Mouse
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	mouse.ID = int64(id)
 
-	mouse, err := c.service.GetMouse(mouse)
+	mouse, err := services.GetMouse(mouse)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -48,7 +40,7 @@ func (c *mouseController) GetMouse(ctx *gin.Context) {
 	}
 }
 
-func (c *mouseController) InsertMouse(ctx *gin.Context) {
+func InsertMouse(ctx *gin.Context) {
 	var mouse structs.Mouse
 
 	err := ctx.ShouldBindJSON(&mouse)
@@ -59,7 +51,7 @@ func (c *mouseController) InsertMouse(ctx *gin.Context) {
 		return
 	}
 
-	mouse, err = c.service.InsertMouse(mouse)
+	mouse, err = services.InsertMouse(mouse)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -70,7 +62,7 @@ func (c *mouseController) InsertMouse(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{ "result": result })
 }
 
-func (c *mouseController) UpdateMouse(ctx *gin.Context) {
+func UpdateMouse(ctx *gin.Context) {
 	var mouse structs.Mouse
 
 	err := ctx.ShouldBindJSON(&mouse)
@@ -83,7 +75,7 @@ func (c *mouseController) UpdateMouse(ctx *gin.Context) {
 
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	mouse.ID = int64(id)
-	mouse, err = c.service.UpdateMouse(mouse)
+	mouse, err = services.UpdateMouse(mouse)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -94,12 +86,12 @@ func (c *mouseController) UpdateMouse(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{ "result": result})
 }
 
-func (c *mouseController) DeleteMouse(ctx *gin.Context) {
+func DeleteMouse(ctx *gin.Context) {
 	var mouse structs.Mouse
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	mouse.ID = int64(id)
 
-	mouse, err := c.service.DeleteMouse(mouse)
+	mouse, err := services.DeleteMouse(mouse)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -109,20 +101,3 @@ func (c *mouseController) DeleteMouse(ctx *gin.Context) {
 	result := fmt.Sprintf("Success delete mouse with ID: %d and name: %s", mouse.ID, mouse.Name)
 	ctx.JSON(http.StatusOK, gin.H{ "result": result })
 }
-
-//func GetBooksByCategory(c *gin.Context) {
-//	var result gin.H
-//
-//	var cat structs.Mouse
-//	id, _ := strconv.Atoi(c.Param("id"))
-//	cat.ID = int64(id)
-//
-//	cats, err := repository.GetBooksByCategory(database.DbConnection, cat)
-//	if err != nil {
-//		result = gin.H{ "error": err }
-//	} else {
-//		result = gin.H{ "result": cats }
-//	}
-//
-//	c.JSON(http.StatusOK, result)
-//}

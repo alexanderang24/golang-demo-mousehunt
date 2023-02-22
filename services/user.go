@@ -2,32 +2,14 @@ package services
 
 import (
 	"errors"
+	"golang-demo-mousehunt/database"
 	"golang-demo-mousehunt/middleware"
 	"golang-demo-mousehunt/repository"
 	"golang-demo-mousehunt/structs"
 )
 
-type UserService interface {
-	GetAllUsers() ([]structs.User, error)
-	GetUser(user structs.User) (structs.User, error)
-	Register(user structs.User) (structs.User, error)
-	InsertUser(user structs.User) (structs.User, error)
-	UpdateUser(user structs.User) (structs.User, error)
-	DeleteUser(user structs.User) (structs.User, error)
-	Login(user structs.User) (structs.User, error)
-	GetByUsername(username string) (structs.User, error)
-}
-
-type userService struct {
-	repository repository.UserRepository
-}
-
-func NewUserService(repo repository.UserRepository) *userService {
-	return &userService{repo}
-}
-
-func (s *userService) GetAllUsers() ([]structs.User, error) {
-	var users, err = s.repository.GetAllUsers()
+func GetAllUsers() ([]structs.User, error) {
+	var users, err = repository.GetAllUsers(database.DbConnection)
 	if err != nil {
 		return users, err
 	} else {
@@ -35,8 +17,8 @@ func (s *userService) GetAllUsers() ([]structs.User, error) {
 	}
 }
 
-func (s *userService) GetUser(user structs.User) (structs.User, error) {
-	user, err = s.repository.GetUser(user)
+func GetUser(user structs.User) (structs.User, error) {
+	user, err = repository.GetUser(database.DbConnection, user)
 	if err != nil {
 		return user, err
 	} else {
@@ -44,21 +26,21 @@ func (s *userService) GetUser(user structs.User) (structs.User, error) {
 	}
 }
 
-func (s* userService) Register(user structs.User) (structs.User, error) {
+func Register(user structs.User) (structs.User, error) {
 	user.Role = "player"
 	user.Gold = 0
 	user.LocationID = 1
 	user.TrapID = 1
-	return s.InsertUser(user)
+	return InsertUser(user)
 }
 
-func (s *userService) InsertUser(user structs.User) (structs.User, error) {
+func InsertUser(user structs.User) (structs.User, error) {
 	if user.Role != "player" && user.Role != "admin" {
 		err = errors.New("invalid role: " + user.Role + ". Value must be player or admin")
 		return user, err
 	}
 
-	user, err = s.repository.InsertUser(user)
+	user, err = repository.InsertUser(database.DbConnection, user)
 	if err != nil {
 		return user, err
 	} else {
@@ -66,13 +48,13 @@ func (s *userService) InsertUser(user structs.User) (structs.User, error) {
 	}
 }
 
-func (s *userService) UpdateUser(user structs.User) (structs.User, error) {
+func UpdateUser(user structs.User) (structs.User, error) {
 	if user.Role != "player" && user.Role != "admin" {
 		err = errors.New("invalid role: " + user.Role + ". Value must be player or admin")
 		return user, err
 	}
 
-	user, err = s.repository.UpdateUser(user)
+	user, err = repository.UpdateUser(database.DbConnection, user)
 	if err != nil {
 		return user, err
 	} else {
@@ -80,8 +62,8 @@ func (s *userService) UpdateUser(user structs.User) (structs.User, error) {
 	}
 }
 
-func (s *userService) DeleteUser(user structs.User) (structs.User, error) {
-	user, err = s.repository.DeleteUser(user)
+func DeleteUser(user structs.User) (structs.User, error) {
+	user, err = repository.DeleteUser(database.DbConnection, user)
 	if err != nil {
 		return user, err
 	} else {
@@ -89,9 +71,9 @@ func (s *userService) DeleteUser(user structs.User) (structs.User, error) {
 	}
 }
 
-func (s *userService) Login(user structs.User) (structs.User, error) {
+func Login(user structs.User) (structs.User, error) {
 	// check username and password correct
-	userInDb, err := s.repository.GetUserByUsername(user.Username)
+	userInDb, err := repository.GetUserByUsername(database.DbConnection, user.Username)
 	if err != nil {
 		return user, err
 	}
@@ -109,9 +91,8 @@ func (s *userService) Login(user structs.User) (structs.User, error) {
 	}
 }
 
-func (s *userService) GetByUsername(username string) (structs.User, error) {
-	var ur repository.UserRepository
-	user, err := ur.GetUserByUsername(username)
+func GetByUsername(username string) (structs.User, error) {
+	user, err := repository.GetUserByUsername(database.DbConnection, username)
 	if err != nil {
 		return user, err
 	}

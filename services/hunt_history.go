@@ -1,38 +1,26 @@
 package services
 
 import (
+	"golang-demo-mousehunt/database"
 	"golang-demo-mousehunt/repository"
 	"golang-demo-mousehunt/structs"
 )
 
-type HuntHistoryService interface {
-	GetAllHistories() ([]structs.HuntHistory, error)
-	DoHunt(history structs.HuntHistory) (structs.HuntHistory, error)
-}
-
-type huntHistoryService struct {
-	repository repository.HuntHistoryRepository
-}
-
-func NewHistoryService(repo repository.HuntHistoryRepository) *huntHistoryService {
-	return &huntHistoryService{repo}
-}
-
-func (s *huntHistoryService) GetAllHistories() ([]structs.HuntHistory, error) {
-	var historys, err = s.repository.GetAllHuntHistories()
+func GetAllHistories() ([]structs.HuntHistory, error) {
+	var histories, err = repository.GetAllHuntHistories(database.DbConnection)
 	if err != nil {
-		return historys, err
+		return histories, err
 	} else {
-		return historys, nil
+		return histories, nil
 	}
 }
 
-func (s *huntHistoryService) DoHunt(history structs.HuntHistory) (structs.HuntHistory, error) {
+func DoHunt(history structs.HuntHistory) (structs.HuntHistory, error) {
 	// hunt logics here
 
 
 
-	history, err = s.repository.InsertHuntHistory(history)
+	history, err = repository.InsertHuntHistory(database.DbConnection, history)
 	if err != nil {
 		return history, err
 	} else {

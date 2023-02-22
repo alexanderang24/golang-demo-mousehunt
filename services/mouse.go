@@ -2,28 +2,13 @@ package services
 
 import (
 	"errors"
+	"golang-demo-mousehunt/database"
 	"golang-demo-mousehunt/repository"
 	"golang-demo-mousehunt/structs"
 )
 
-type MouseService interface {
-	GetAllMice() ([]structs.Mouse, error)
-	GetMouse(mouse structs.Mouse) (structs.Mouse, error)
-	InsertMouse(mouse structs.Mouse) (structs.Mouse, error)
-	UpdateMouse(mouse structs.Mouse) (structs.Mouse, error)
-	DeleteMouse(mouse structs.Mouse) (structs.Mouse, error)
-}
-
-type mouseService struct {
-	repository repository.MouseRepository
-}
-
-func NewMouseService(repo repository.MouseRepository) *mouseService {
-	return &mouseService{repo}
-}
-
-func (s *mouseService) GetAllMice() ([]structs.Mouse, error) {
-	var mouses, err = s.repository.GetAllMice()
+func GetAllMice() ([]structs.Mouse, error) {
+	var mouses, err = repository.GetAllMice(database.DbConnection)
 	if err != nil {
 		return mouses, err
 	} else {
@@ -31,8 +16,8 @@ func (s *mouseService) GetAllMice() ([]structs.Mouse, error) {
 	}
 }
 
-func (s *mouseService) GetMouse(mouse structs.Mouse) (structs.Mouse, error) {
-	mouse, err = s.repository.GetMouse(mouse)
+func GetMouse(mouse structs.Mouse) (structs.Mouse, error) {
+	mouse, err = repository.GetMouse(database.DbConnection, mouse)
 	if err != nil {
 		return mouse, err
 	} else {
@@ -40,13 +25,13 @@ func (s *mouseService) GetMouse(mouse structs.Mouse) (structs.Mouse, error) {
 	}
 }
 
-func (s *mouseService) InsertMouse(mouse structs.Mouse) (structs.Mouse, error) {
+func InsertMouse(mouse structs.Mouse) (structs.Mouse, error) {
 	if mouse.MaxPower < mouse.MinPower {
 		err = errors.New("max power should not be lower than min power")
 		return mouse, err
 	}
 
-	mouse, err = s.repository.InsertMouse(mouse)
+	mouse, err = repository.InsertMouse(database.DbConnection, mouse)
 	if err != nil {
 		return mouse, err
 	} else {
@@ -54,13 +39,13 @@ func (s *mouseService) InsertMouse(mouse structs.Mouse) (structs.Mouse, error) {
 	}
 }
 
-func (s *mouseService) UpdateMouse(mouse structs.Mouse) (structs.Mouse, error) {
+func UpdateMouse(mouse structs.Mouse) (structs.Mouse, error) {
 	if mouse.MaxPower < mouse.MinPower {
 		err = errors.New("max power should not be lower than min power")
 		return mouse, err
 	}
 
-	mouse, err = s.repository.UpdateMouse(mouse)
+	mouse, err = repository.UpdateMouse(database.DbConnection, mouse)
 	if err != nil {
 		return mouse, err
 	} else {
@@ -68,8 +53,8 @@ func (s *mouseService) UpdateMouse(mouse structs.Mouse) (structs.Mouse, error) {
 	}
 }
 
-func (s *mouseService) DeleteMouse(mouse structs.Mouse) (structs.Mouse, error) {
-	mouse, err = s.repository.DeleteMouse(mouse)
+func DeleteMouse(mouse structs.Mouse) (structs.Mouse, error) {
+	mouse, err = repository.DeleteMouse(database.DbConnection, mouse)
 	if err != nil {
 		return mouse, err
 	} else {

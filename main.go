@@ -8,8 +8,6 @@ import (
 	"golang-demo-mousehunt/controllers"
 	"golang-demo-mousehunt/database"
 	"golang-demo-mousehunt/middleware"
-	"golang-demo-mousehunt/repository"
-	"golang-demo-mousehunt/services"
 	"os"
 
 	_ "github.com/lib/pq"
@@ -28,8 +26,7 @@ func main() {
 		os.Getenv("PGPORT"),
 		os.Getenv("PGUSER"),
 		os.Getenv("PGPASSWORD"),
-		os.Getenv("PGDATABASE"),
-	)
+		os.Getenv("PGDATABASE"))
 
 	db, err = sql.Open("postgres", psqlInfo)
 	err = db.Ping()
@@ -46,61 +43,46 @@ func main() {
 	router := gin.Default()
 
 	// location
-	locationRepo := repository.NewLocationRepository(db)
-	locationService := services.NewLocationService(locationRepo)
-	locationController := controllers.NewLocationController(locationService)
 	location := router.Group("/location", middleware.VerifyJWT)
-	location.GET("", locationController.GetAllLocations)
-	location.GET("/:id", locationController.GetLocation)
-	location.POST("", middleware.AdminOnly, locationController.InsertLocation)
-	location.PUT("/:id", middleware.AdminOnly, locationController.UpdateLocation)
-	location.DELETE("/:id", middleware.AdminOnly, locationController.DeleteLocation)
-	//location.POST("/:id/travel", middleware.BasicAuth, locationController.TravelToLocation)
+	location.GET("", controllers.GetAllLocations)
+	location.GET("/:id", controllers.GetLocation)
+	location.POST("", middleware.AdminOnly, controllers.InsertLocation)
+	location.PUT("/:id", middleware.AdminOnly, controllers.UpdateLocation)
+	location.DELETE("/:id", middleware.AdminOnly, controllers.DeleteLocation)
+	location.POST("/:id/travel", controllers.TravelToLocation)
 
 	// mouse
-	mouseRepo := repository.NewMouseRepository(db)
-	mouseService := services.NewMouseService(mouseRepo)
-	mouseController := controllers.NewMouseController(mouseService)
 	mouse := router.Group("/mouse", middleware.VerifyJWT)
-	mouse.GET("", middleware.AdminOnly, mouseController.GetAllMice)
-	mouse.GET("/:id", mouseController.GetMouse)
-	mouse.POST("", middleware.AdminOnly, mouseController.InsertMouse)
-	mouse.PUT("/:id", middleware.AdminOnly, mouseController.UpdateMouse)
-	mouse.DELETE("/:id", middleware.AdminOnly, mouseController.DeleteMouse)
+	mouse.GET("", middleware.AdminOnly, controllers.GetAllMice)
+	mouse.GET("/:id", controllers.GetMouse)
+	mouse.POST("", middleware.AdminOnly, controllers.InsertMouse)
+	mouse.PUT("/:id", middleware.AdminOnly, controllers.UpdateMouse)
+	mouse.DELETE("/:id", middleware.AdminOnly, controllers.DeleteMouse)
 
-	// user - admin
-	userRepo := repository.NewUserRepository(db)
-	userService := services.NewUserService(userRepo)
-	userController := controllers.NewUserController(userService)
+	// user
 	user := router.Group("/user", middleware.VerifyJWT)
-	user.GET("", middleware.AdminOnly, userController.GetAllUsers)
-	user.GET("/:id", userController.GetUser)
-	user.POST("", middleware.AdminOnly, userController.InsertUser)
-	user.PUT("/:id", middleware.AdminOnly, userController.UpdateUser)
-	user.DELETE("/:id", middleware.AdminOnly, userController.DeleteUser)
-	router.POST("/user/register", userController.Register)
-	router.POST("/user/login", userController.Login)
+	user.GET("", middleware.AdminOnly, controllers.GetAllUsers)
+	user.GET("/:id", controllers.GetUser)
+	user.POST("", middleware.AdminOnly, controllers.InsertUser)
+	user.PUT("/:id", middleware.AdminOnly, controllers.UpdateUser)
+	user.DELETE("/:id", middleware.AdminOnly, controllers.DeleteUser)
+	router.POST("/user/register", controllers.Register)
+	router.POST("/user/login", controllers.Login)
 
 	// trap
-	trapRepo := repository.NewTrapRepository(db)
-	trapService := services.NewTrapService(trapRepo)
-	trapController := controllers.NewTrapController(trapService)
 	trap := router.Group("/trap", middleware.VerifyJWT)
-	trap.GET("", trapController.GetAllTraps)
-	trap.GET("/:id", trapController.GetTrap)
-	trap.POST("", middleware.AdminOnly, trapController.InsertTrap)
-	trap.PUT("/:id", middleware.AdminOnly, trapController.UpdateTrap)
-	trap.DELETE("/:id", middleware.AdminOnly, trapController.DeleteTrap)
-	trap.POST("/:id/buy", trapController.BuyTrap)
+	trap.GET("", controllers.GetAllTraps)
+	trap.GET("/:id", controllers.GetTrap)
+	trap.POST("", middleware.AdminOnly, controllers.InsertTrap)
+	trap.PUT("/:id", middleware.AdminOnly, controllers.UpdateTrap)
+	trap.DELETE("/:id", middleware.AdminOnly, controllers.DeleteTrap)
+	trap.POST("/:id/buy", controllers.BuyTrap)
 
 
 	// hunt history
-	huntRepo := repository.NewHuntHistoryRepository(db)
-	huntService := services.NewHistoryService(huntRepo)
-	huntController := controllers.NewHuntHistoryController(huntService)
 	hunt := router.Group("/hunt", middleware.VerifyJWT)
-	hunt.GET("", huntController.GetAllHuntHistories)
-	hunt.POST("", huntController.DoHunt)
+	hunt.GET("", controllers.GetAllHuntHistories)
+	hunt.POST("", controllers.DoHunt)
 
 	err :=router.Run(":" + os.Getenv("PORT"))
 	if err != nil {

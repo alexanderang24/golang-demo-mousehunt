@@ -9,16 +9,8 @@ import (
 	"strconv"
 )
 
-type userController struct {
-	service services.UserService
-}
-
-func NewUserController(service services.UserService) *userController {
-	return &userController{service}
-}
-
-func (c *userController) GetAllUsers(ctx *gin.Context) {
-	users, err := c.service.GetAllUsers()
+func GetAllUsers(ctx *gin.Context) {
+	users, err := services.GetAllUsers()
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -30,12 +22,12 @@ func (c *userController) GetAllUsers(ctx *gin.Context) {
 	}
 }
 
-func (c *userController) GetUser(ctx *gin.Context) {
+func GetUser(ctx *gin.Context) {
 	var user structs.User
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	user.ID = int64(id)
 
-	user, err := c.service.GetUser(user)
+	user, err := services.GetUser(user)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -48,7 +40,7 @@ func (c *userController) GetUser(ctx *gin.Context) {
 	}
 }
 
-func (c *userController) Register(ctx *gin.Context) {
+func Register(ctx *gin.Context) {
 	var user structs.User
 
 	err := ctx.ShouldBindJSON(&user)
@@ -59,7 +51,7 @@ func (c *userController) Register(ctx *gin.Context) {
 		return
 	}
 
-	user, err = c.service.Register(user)
+	user, err = services.Register(user)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -70,7 +62,7 @@ func (c *userController) Register(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{ "result": result })
 }
 
-func (c *userController) InsertUser(ctx *gin.Context) {
+func InsertUser(ctx *gin.Context) {
 	var user structs.User
 
 	err := ctx.ShouldBindJSON(&user)
@@ -81,7 +73,7 @@ func (c *userController) InsertUser(ctx *gin.Context) {
 		return
 	}
 
-	user, err = c.service.InsertUser(user)
+	user, err = services.InsertUser(user)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -92,7 +84,7 @@ func (c *userController) InsertUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{ "result": result })
 }
 
-func (c *userController) UpdateUser(ctx *gin.Context) {
+func UpdateUser(ctx *gin.Context) {
 	var user structs.User
 
 	err := ctx.ShouldBindJSON(&user)
@@ -105,7 +97,7 @@ func (c *userController) UpdateUser(ctx *gin.Context) {
 
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	user.ID = int64(id)
-	user, err = c.service.UpdateUser(user)
+	user, err = services.UpdateUser(user)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -116,12 +108,12 @@ func (c *userController) UpdateUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{ "result": result})
 }
 
-func (c *userController) DeleteUser(ctx *gin.Context) {
+func DeleteUser(ctx *gin.Context) {
 	var user structs.User
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	user.ID = int64(id)
 
-	user, err := c.service.DeleteUser(user)
+	user, err := services.DeleteUser(user)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -132,7 +124,7 @@ func (c *userController) DeleteUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{ "result": result })
 }
 
-func (c *userController) Login(ctx *gin.Context) {
+func Login(ctx *gin.Context) {
 	var user structs.User
 
 	err := ctx.ShouldBindJSON(&user)
@@ -143,7 +135,7 @@ func (c *userController) Login(ctx *gin.Context) {
 		return
 	}
 
-	user, err = c.service.Login(user)
+	user, err = services.Login(user)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
