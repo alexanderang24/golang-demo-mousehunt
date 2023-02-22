@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"errors"
+	"golang-demo-mousehunt/database"
 	"golang-demo-mousehunt/structs"
 	"strconv"
 	"time"
@@ -67,20 +68,6 @@ func (r *userRepository) GetUser(user structs.User) (structs.User, error) {
 	return result, nil
 }
 
-func (r *userRepository) GetUserByUsername(username string) (structs.User, error) {
-	var result structs.User
-	sqlCheck := `SELECT * FROM "user" WHERE username = $1`
-
-	rows := r.db.QueryRow(sqlCheck, username)
-
-	err = rows.Scan(&result.ID, &result.Username, &result.Password, &result.Role, &result.Gold, &result.LocationID, &result.TrapID, &result.CreatedAt, &result.UpdatedAt)
-	if result == (structs.User{}) {
-		err = errors.New("username " + username + " not found")
-		return result, err
-	}
-	return result, nil
-}
-
 func (r *userRepository) InsertUser(user structs.User) (structs.User, error) {
 	now := time.Now()
 	sqlStatement := `INSERT INTO "user"(username, password, role, gold, location_id, trap_id, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
@@ -126,4 +113,19 @@ func (r *userRepository) DeleteUser(user structs.User) (structs.User, error) {
 	} else {
 		return user, nil
 	}
+}
+
+func (r *userRepository) GetUserByUsername(username string) (structs.User, error) {
+	var result structs.User
+	sqlCheck := `SELECT * FROM "user" WHERE username = $1`
+
+	db := database.DbConnection
+	rows := db.QueryRow(sqlCheck, username)
+
+	err = rows.Scan(&result.ID, &result.Username, &result.Password, &result.Role, &result.Gold, &result.LocationID, &result.TrapID, &result.CreatedAt, &result.UpdatedAt)
+	if result == (structs.User{}) {
+		err = errors.New("username " + username + " not found")
+		return result, err
+	}
+	return result, nil
 }

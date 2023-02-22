@@ -16,6 +16,7 @@ type TrapService interface {
 	InsertTrap(trap structs.Trap) (structs.Trap, error)
 	UpdateTrap(trap structs.Trap) (structs.Trap, error)
 	DeleteTrap(trap structs.Trap) (structs.Trap, error)
+	BuyTrap(trap structs.Trap, user structs.User) (structs.User, error)
 }
 
 type trapService struct {
@@ -78,5 +79,22 @@ func (s *trapService) DeleteTrap(trap structs.Trap) (structs.Trap, error) {
 		return trap, err
 	} else {
 		return trap, nil
+	}
+}
+
+func (s *trapService) BuyTrap(trap structs.Trap, user structs.User) (structs.User, error) {
+	if user.Gold < trap.Price {
+		err := errors.New("not enough gold to buy trap")
+		return user, err
+	} else if user.TrapID == trap.ID {
+		err := errors.New("you already have this trap")
+		return user, err
+	} else {
+		user.Gold = user.Gold - trap.Price
+		user.TrapID = trap.ID
+
+		var ur repository.UserRepository
+		user, err = ur.UpdateUser(user)
+		return user, nil
 	}
 }

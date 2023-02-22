@@ -45,64 +45,62 @@ func main() {
 
 	router := gin.Default()
 
-	// trap
-	trapRepo := repository.NewTrapRepository(db)
-	trapService := services.NewTrapService(trapRepo)
-	trapController := controllers.NewTrapController(trapService)
-	trap := router.Group("/trap")
-	trap.GET("", trapController.GetAllTraps)
-	trap.GET("/:id", trapController.GetTrap)
-	trap.POST("", middleware.VerifyJWT, trapController.InsertTrap)
-	trap.PUT("/:id", middleware.VerifyJWT, trapController.UpdateTrap)
-	trap.DELETE("/:id", middleware.VerifyJWT, trapController.DeleteTrap)
-
 	// location
 	locationRepo := repository.NewLocationRepository(db)
 	locationService := services.NewLocationService(locationRepo)
 	locationController := controllers.NewLocationController(locationService)
-	location := router.Group("/location")
+	location := router.Group("/location", middleware.VerifyJWT)
 	location.GET("", locationController.GetAllLocations)
 	location.GET("/:id", locationController.GetLocation)
-	location.POST("", middleware.VerifyJWT, locationController.InsertLocation)
-	location.PUT("/:id", middleware.VerifyJWT, locationController.UpdateLocation)
-	location.DELETE("/:id", middleware.VerifyJWT, locationController.DeleteLocation)
+	location.POST("", middleware.AdminOnly, locationController.InsertLocation)
+	location.PUT("/:id", middleware.AdminOnly, locationController.UpdateLocation)
+	location.DELETE("/:id", middleware.AdminOnly, locationController.DeleteLocation)
+	//location.POST("/:id/travel", middleware.BasicAuth, locationController.TravelToLocation)
 
 	// mouse
 	mouseRepo := repository.NewMouseRepository(db)
 	mouseService := services.NewMouseService(mouseRepo)
 	mouseController := controllers.NewMouseController(mouseService)
-	mouse := router.Group("/mouse")
-	mouse.GET("", mouseController.GetAllMice)
+	mouse := router.Group("/mouse", middleware.VerifyJWT)
+	mouse.GET("", middleware.AdminOnly, mouseController.GetAllMice)
 	mouse.GET("/:id", mouseController.GetMouse)
-	mouse.POST("", middleware.VerifyJWT, mouseController.InsertMouse)
-	mouse.PUT("/:id", middleware.VerifyJWT, mouseController.UpdateMouse)
-	mouse.DELETE("/:id", middleware.VerifyJWT, mouseController.DeleteMouse)
+	mouse.POST("", middleware.AdminOnly, mouseController.InsertMouse)
+	mouse.PUT("/:id", middleware.AdminOnly, mouseController.UpdateMouse)
+	mouse.DELETE("/:id", middleware.AdminOnly, mouseController.DeleteMouse)
 
 	// user - admin
 	userRepo := repository.NewUserRepository(db)
 	userService := services.NewUserService(userRepo)
 	userController := controllers.NewUserController(userService)
-	user := router.Group("/user")
-	user.GET("", userController.GetAllUsers)
+	user := router.Group("/user", middleware.VerifyJWT)
+	user.GET("", middleware.AdminOnly, userController.GetAllUsers)
 	user.GET("/:id", userController.GetUser)
-	user.POST("", middleware.VerifyJWT, middleware.AdminOnly, userController.InsertUser)
-	user.PUT("/:id", middleware.VerifyJWT, userController.UpdateUser)
-	user.DELETE("/:id", middleware.VerifyJWT, userController.DeleteUser)
+	user.POST("", middleware.AdminOnly, userController.InsertUser)
+	user.PUT("/:id", middleware.AdminOnly, userController.UpdateUser)
+	user.DELETE("/:id", middleware.AdminOnly, userController.DeleteUser)
+	router.POST("/user/register", userController.Register)
+	router.POST("/user/login", userController.Login)
+
+	// trap
+	trapRepo := repository.NewTrapRepository(db)
+	trapService := services.NewTrapService(trapRepo)
+	trapController := controllers.NewTrapController(trapService)
+	trap := router.Group("/trap", middleware.VerifyJWT)
+	trap.GET("", trapController.GetAllTraps)
+	trap.GET("/:id", trapController.GetTrap)
+	trap.POST("", middleware.AdminOnly, trapController.InsertTrap)
+	trap.PUT("/:id", middleware.AdminOnly, trapController.UpdateTrap)
+	trap.DELETE("/:id", middleware.AdminOnly, trapController.DeleteTrap)
+	trap.POST("/:id/buy", trapController.BuyTrap)
 
 
 	// hunt history
 	huntRepo := repository.NewHuntHistoryRepository(db)
 	huntService := services.NewHistoryService(huntRepo)
 	huntController := controllers.NewHuntHistoryController(huntService)
-	hunt := router.Group("/hunt")
-
-	// player APIs
-	user.POST("/register", userController.Register)
-	user.POST("/login", userController.Login)
-	//trap.POST("/trap/:id/buy", middleware.BasicAuth, trapController.BuyTrap)
-	//location.POST("/:id/travel", middleware.BasicAuth, locationController.TravelToLocation)
+	hunt := router.Group("/hunt", middleware.VerifyJWT)
 	hunt.GET("", huntController.GetAllHuntHistories)
-	hunt.POST("", middleware.VerifyJWT, huntController.DoHunt)
+	hunt.POST("", huntController.DoHunt)
 
 	err :=router.Run(":" + os.Getenv("PORT"))
 	if err != nil {

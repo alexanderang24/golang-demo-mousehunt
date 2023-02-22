@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"golang-demo-mousehunt/middleware"
 	"golang-demo-mousehunt/services"
 	"golang-demo-mousehunt/structs"
 	"net/http"
@@ -110,6 +111,38 @@ func (c *trapController) DeleteTrap(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{ "result": result })
 }
 
-//func (c *trapController) BuyTrap(ctx *gin.Context) {
-//
-//}
+func (c *trapController) BuyTrap(ctx *gin.Context) {
+	// check trap exist
+	var trap structs.Trap
+	id, _ := strconv.Atoi(ctx.Param("id"))
+	trap.ID = int64(id)
+	trap, err := c.service.GetTrap(trap)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// get user
+	username, _, err := middleware.ExtractClaims(ctx)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	var us services.UserService
+	user, err := us.GetByUsername(username)
+
+	// buy trap
+	user, err = c.service.BuyTrap(trap, user)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	result := fmt.Sprintf("You bought %s that costs %d gold. You have %d gold now", trap.Name, trap.Price, user.Gold)
+	ctx.JSON(http.StatusOK, gin.H{ "result": result })
+}

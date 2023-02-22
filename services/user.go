@@ -15,6 +15,7 @@ type UserService interface {
 	UpdateUser(user structs.User) (structs.User, error)
 	DeleteUser(user structs.User) (structs.User, error)
 	Login(user structs.User) (structs.User, error)
+	GetByUsername(username string) (structs.User, error)
 }
 
 type userService struct {
@@ -106,4 +107,13 @@ func (s *userService) Login(user structs.User) (structs.User, error) {
 		user.Token = token
 		return user, nil
 	}
+}
+
+func (s *userService) GetByUsername(username string) (structs.User, error) {
+	var ur repository.UserRepository
+	user, err := ur.GetUserByUsername(username)
+	if err != nil {
+		return user, err
+	}
+	return user, nil
 }
