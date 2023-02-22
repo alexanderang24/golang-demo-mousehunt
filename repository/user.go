@@ -3,13 +3,13 @@ package repository
 import (
 	"database/sql"
 	"errors"
-	"golang-demo-mousehunt/structs"
+	"golang-demo-mousehunt/dto"
 	"strconv"
 	"time"
 )
 
-func GetAllUsers(db *sql.DB) ([]structs.User, error) {
-	var results []structs.User
+func GetAllUsers(db *sql.DB) ([]dto.User, error) {
+	var results []dto.User
 	sqlStatement := `SELECT * FROM "user" ORDER BY id`
 
 	var rows, err = db.Query(sqlStatement)
@@ -24,7 +24,7 @@ func GetAllUsers(db *sql.DB) ([]structs.User, error) {
 	}(rows)
 
 	for rows.Next() {
-		var user = structs.User{}
+		var user = dto.User{}
 
 		err = rows.Scan(&user.ID, &user.Username, &user.Password, &user.Role, &user.Gold, &user.LocationID, &user.TrapID, &user.CreatedAt, &user.UpdatedAt)
 		if err != nil {
@@ -36,21 +36,21 @@ func GetAllUsers(db *sql.DB) ([]structs.User, error) {
 	return results, nil
 }
 
-func GetUser(db *sql.DB, user structs.User) (structs.User, error) {
-	var result structs.User
+func GetUser(db *sql.DB, user dto.User) (dto.User, error) {
+	var result dto.User
 	sqlCheck := `SELECT * FROM "user" WHERE id = $1`
 
 	rows := db.QueryRow(sqlCheck, user.ID)
 
 	err = rows.Scan(&result.ID, &result.Username, &result.Password, &result.Role, &result.Gold, &result.LocationID, &result.TrapID, &result.CreatedAt, &result.UpdatedAt)
-	if result == (structs.User{}) {
+	if result == (dto.User{}) {
 		err = errors.New("user with id " + strconv.Itoa(int(user.ID)) + " not found")
 		return result, err
 	}
 	return result, nil
 }
 
-func InsertUser(db *sql.DB, user structs.User) (structs.User, error) {
+func InsertUser(db *sql.DB, user dto.User) (dto.User, error) {
 	now := time.Now()
 	sqlStatement := `INSERT INTO "user"(username, password, role, gold, location_id, trap_id, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
 	rows := db.QueryRow(sqlStatement, user.Username, user.Password, user.Role, user.Gold, user.LocationID, user.TrapID, now, now)
@@ -66,7 +66,7 @@ func InsertUser(db *sql.DB, user structs.User) (structs.User, error) {
 	}
 }
 
-func UpdateUser(db *sql.DB, user structs.User) (structs.User, error) {
+func UpdateUser(db *sql.DB, user dto.User) (dto.User, error) {
 	_, err := GetUser(db, user)
 
 	if err != nil {
@@ -82,7 +82,7 @@ func UpdateUser(db *sql.DB, user structs.User) (structs.User, error) {
 	}
 }
 
-func DeleteUser(db *sql.DB, user structs.User) (structs.User, error) {
+func DeleteUser(db *sql.DB, user dto.User) (dto.User, error) {
 	user, err = GetUser(db, user)
 	if err != nil {
 		return user, err
@@ -97,15 +97,11 @@ func DeleteUser(db *sql.DB, user structs.User) (structs.User, error) {
 	}
 }
 
-func GetUserByUsername(db *sql.DB, username string) (structs.User, error) {
-	var result structs.User
+func GetUserByUsername(db *sql.DB, username string) (dto.User, error) {
+	var result dto.User
 	sqlCheck := `SELECT * FROM "user" WHERE username = $1`
 	rows := db.QueryRow(sqlCheck, username)
 
 	err = rows.Scan(&result.ID, &result.Username, &result.Password, &result.Role, &result.Gold, &result.LocationID, &result.TrapID, &result.CreatedAt, &result.UpdatedAt)
-	if result == (structs.User{}) {
-		err = errors.New("username " + username + " not found")
-		return result, err
-	}
 	return result, nil
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang-demo-mousehunt/middleware"
 	"golang-demo-mousehunt/services"
-	"golang-demo-mousehunt/structs"
+	"golang-demo-mousehunt/dto"
 	"net/http"
 	"strconv"
 )
@@ -24,7 +24,7 @@ func GetAllLocations(ctx *gin.Context) {
 }
 
 func GetLocation(ctx *gin.Context) {
-	var location structs.Location
+	var location dto.Location
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	location.ID = int64(id)
 
@@ -42,7 +42,7 @@ func GetLocation(ctx *gin.Context) {
 }
 
 func InsertLocation(ctx *gin.Context) {
-	var location structs.Location
+	var location dto.Location
 
 	err := ctx.ShouldBindJSON(&location)
 	if err != nil {
@@ -64,7 +64,7 @@ func InsertLocation(ctx *gin.Context) {
 }
 
 func UpdateLocation(ctx *gin.Context) {
-	var location structs.Location
+	var location dto.Location
 
 	err := ctx.ShouldBindJSON(&location)
 	if err != nil {
@@ -88,7 +88,7 @@ func UpdateLocation(ctx *gin.Context) {
 }
 
 func DeleteLocation(ctx *gin.Context) {
-	var location structs.Location
+	var location dto.Location
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	location.ID = int64(id)
 
@@ -105,7 +105,7 @@ func DeleteLocation(ctx *gin.Context) {
 
 func TravelToLocation(ctx *gin.Context) {
 	// check location exist
-	var location structs.Location
+	var location dto.Location
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	location.ID = int64(id)
 
@@ -126,6 +126,11 @@ func TravelToLocation(ctx *gin.Context) {
 		return
 	}
 	user, err := services.GetByUsername(username)
+	if user == (dto.User{}) {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "username not found",
+		})
+	}
 
 	// travel
 	user, err = services.TravelToLocation(location, user)

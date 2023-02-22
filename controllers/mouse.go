@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"golang-demo-mousehunt/services"
-	"golang-demo-mousehunt/structs"
+	"golang-demo-mousehunt/dto"
 	"net/http"
 	"strconv"
 )
@@ -23,7 +23,7 @@ func GetAllMice(ctx *gin.Context) {
 }
 
 func GetMouse(ctx *gin.Context) {
-	var mouse structs.Mouse
+	var mouse dto.Mouse
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	mouse.ID = int64(id)
 
@@ -41,7 +41,7 @@ func GetMouse(ctx *gin.Context) {
 }
 
 func InsertMouse(ctx *gin.Context) {
-	var mouse structs.Mouse
+	var mouse dto.Mouse
 
 	err := ctx.ShouldBindJSON(&mouse)
 	if err != nil {
@@ -63,7 +63,7 @@ func InsertMouse(ctx *gin.Context) {
 }
 
 func UpdateMouse(ctx *gin.Context) {
-	var mouse structs.Mouse
+	var mouse dto.Mouse
 
 	err := ctx.ShouldBindJSON(&mouse)
 	if err != nil {
@@ -87,7 +87,7 @@ func UpdateMouse(ctx *gin.Context) {
 }
 
 func DeleteMouse(ctx *gin.Context) {
-	var mouse structs.Mouse
+	var mouse dto.Mouse
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	mouse.ID = int64(id)
 

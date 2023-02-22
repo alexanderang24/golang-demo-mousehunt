@@ -1,4 +1,4 @@
-package structs
+package dto
 
 type User struct {
 	ID         int64  `json:"id"`
@@ -10,5 +10,4 @@ type User struct {
 	TrapID     int64  `json:"trap_id"`
 	CreatedAt  string `json:"created_at"`
 	UpdatedAt  string `json:"updated_at"`
-	Token      string
 }

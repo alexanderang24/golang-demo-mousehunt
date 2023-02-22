@@ -4,14 +4,14 @@ import (
 	"errors"
 	"golang-demo-mousehunt/database"
 	"golang-demo-mousehunt/repository"
-	"golang-demo-mousehunt/structs"
+	"golang-demo-mousehunt/dto"
 )
 
 var (
 	err error
 )
 
-func GetAllTraps() ([]structs.Trap, error) {
+func GetAllTraps() ([]dto.Trap, error) {
 	var traps, err = repository.GetAllTraps(database.DbConnection)
 	if err != nil {
 		return traps, err
@@ -20,7 +20,7 @@ func GetAllTraps() ([]structs.Trap, error) {
 	}
 }
 
-func GetTrap(trap structs.Trap) (structs.Trap, error) {
+func GetTrap(trap dto.Trap) (dto.Trap, error) {
 	trap, err = repository.GetTrap(database.DbConnection, trap)
 	if err != nil {
 		return trap, err
@@ -29,7 +29,7 @@ func GetTrap(trap structs.Trap) (structs.Trap, error) {
 	}
 }
 
-func InsertTrap(trap structs.Trap) (structs.Trap, error) {
+func InsertTrap(trap dto.Trap) (dto.Trap, error) {
 	if trap.MaxPower < trap.MinPower {
 		err = errors.New("max power should not be lower than min power")
 		return trap, err
@@ -43,7 +43,7 @@ func InsertTrap(trap structs.Trap) (structs.Trap, error) {
 	}
 }
 
-func UpdateTrap(trap structs.Trap) (structs.Trap, error) {
+func UpdateTrap(trap dto.Trap) (dto.Trap, error) {
 	if trap.MaxPower < trap.MinPower {
 		err = errors.New("max power should not be lower than min power")
 		return trap, err
@@ -57,7 +57,12 @@ func UpdateTrap(trap structs.Trap) (structs.Trap, error) {
 	}
 }
 
-func DeleteTrap(trap structs.Trap) (structs.Trap, error) {
+func DeleteTrap(trap dto.Trap) (dto.Trap, error) {
+	trap, err = GetTrap(trap)
+	if err != nil {
+		return trap, err
+	}
+
 	trap, err = repository.DeleteTrap(database.DbConnection, trap)
 	if err != nil {
 		return trap, err
@@ -66,7 +71,7 @@ func DeleteTrap(trap structs.Trap) (structs.Trap, error) {
 	}
 }
 
-func BuyTrap(trap structs.Trap, user structs.User) (structs.User, error) {
+func BuyTrap(trap dto.Trap, user dto.User) (dto.User, error) {
 	if user.TrapID == trap.ID {
 		err := errors.New("you already have this trap")
 		return user, err

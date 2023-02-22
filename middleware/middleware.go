@@ -21,7 +21,7 @@ func GenerateJWT(username, role string) (string ,error) {
 
 	claims := MyClaims{
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(10 * time.Minute).Unix(),
+			ExpiresAt: time.Now().Add(15 * time.Minute).Unix(),
 		},
 		Username: username,
 		Role: role,

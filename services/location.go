@@ -4,10 +4,10 @@ import (
 	"errors"
 	"golang-demo-mousehunt/database"
 	"golang-demo-mousehunt/repository"
-	"golang-demo-mousehunt/structs"
+	"golang-demo-mousehunt/dto"
 )
 
-func GetAllLocations() ([]structs.Location, error) {
+func GetAllLocations() ([]dto.Location, error) {
 	var locations, err = repository.GetAllLocations(database.DbConnection, )
 	if err != nil {
 		return locations, err
@@ -16,7 +16,7 @@ func GetAllLocations() ([]structs.Location, error) {
 	}
 }
 
-func GetLocation(location structs.Location) (structs.Location, error) {
+func GetLocation(location dto.Location) (dto.Location, error) {
 	location, err = repository.GetLocation(database.DbConnection, location)
 	if err != nil {
 		return location, err
@@ -25,7 +25,7 @@ func GetLocation(location structs.Location) (structs.Location, error) {
 	}
 }
 
-func InsertLocation(location structs.Location) (structs.Location, error) {
+func InsertLocation(location dto.Location) (dto.Location, error) {
 	location, err = repository.InsertLocation(database.DbConnection, location)
 	if err != nil {
 		return location, err
@@ -34,7 +34,7 @@ func InsertLocation(location structs.Location) (structs.Location, error) {
 	}
 }
 
-func UpdateLocation(location structs.Location) (structs.Location, error) {
+func UpdateLocation(location dto.Location) (dto.Location, error) {
 	location, err = repository.UpdateLocation(database.DbConnection, location)
 	if err != nil {
 		return location, err
@@ -43,7 +43,7 @@ func UpdateLocation(location structs.Location) (structs.Location, error) {
 	}
 }
 
-func DeleteLocation(location structs.Location) (structs.Location, error) {
+func DeleteLocation(location dto.Location) (dto.Location, error) {
 	location, err = repository.DeleteLocation(database.DbConnection, location)
 	if err != nil {
 		return location, err
@@ -52,7 +52,7 @@ func DeleteLocation(location structs.Location) (structs.Location, error) {
 	}
 }
 
-func TravelToLocation(location structs.Location, user structs.User) (structs.User, error) {
+func TravelToLocation(location dto.Location, user dto.User) (dto.User, error) {
 	if user.LocationID == location.ID {
 		err := errors.New("you already on this location")
 		return user, err

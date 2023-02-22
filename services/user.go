@@ -5,10 +5,11 @@ import (
 	"golang-demo-mousehunt/database"
 	"golang-demo-mousehunt/middleware"
 	"golang-demo-mousehunt/repository"
-	"golang-demo-mousehunt/structs"
+	"golang-demo-mousehunt/dto"
+	"strconv"
 )
 
-func GetAllUsers() ([]structs.User, error) {
+func GetAllUsers() ([]dto.User, error) {
 	var users, err = repository.GetAllUsers(database.DbConnection)
 	if err != nil {
 		return users, err
@@ -17,7 +18,7 @@ func GetAllUsers() ([]structs.User, error) {
 	}
 }
 
-func GetUser(user structs.User) (structs.User, error) {
+func GetUser(user dto.User) (dto.User, error) {
 	user, err = repository.GetUser(database.DbConnection, user)
 	if err != nil {
 		return user, err
@@ -26,7 +27,13 @@ func GetUser(user structs.User) (structs.User, error) {
 	}
 }
 
-func Register(user structs.User) (structs.User, error) {
+func Register(user dto.User) (dto.User, error) {
+	existingUser, err := GetByUsername(user.Username)
+	if existingUser != (dto.User{}) {
+		err = errors.New("username already exist")
+		return user, err
+	}
+
 	user.Role = "player"
 	user.Gold = 0
 	user.LocationID = 1
@@ -34,9 +41,27 @@ func Register(user structs.User) (structs.User, error) {
 	return InsertUser(user)
 }
 
-func InsertUser(user structs.User) (structs.User, error) {
+func InsertUser(user dto.User) (dto.User, error) {
 	if user.Role != "player" && user.Role != "admin" {
 		err = errors.New("invalid role: " + user.Role + ". Value must be player or admin")
+		return user, err
+	}
+
+	var location = dto.Location{
+		ID: user.LocationID,
+	}
+	_, err = repository.GetLocation(database.DbConnection, location)
+	if err != nil {
+		err = errors.New("location with ID " + strconv.Itoa(int(user.LocationID)) + " not found")
+		return user, err
+	}
+
+	var trap = dto.Trap{
+		ID: user.TrapID,
+	}
+	_, err = repository.GetTrap(database.DbConnection, trap)
+	if err != nil {
+		err = errors.New("trap with ID " + strconv.Itoa(int(user.TrapID)) + " not found")
 		return user, err
 	}
 
@@ -48,9 +73,27 @@ func InsertUser(user structs.User) (structs.User, error) {
 	}
 }
 
-func UpdateUser(user structs.User) (structs.User, error) {
+func UpdateUser(user dto.User) (dto.User, error) {
 	if user.Role != "player" && user.Role != "admin" {
 		err = errors.New("invalid role: " + user.Role + ". Value must be player or admin")
+		return user, err
+	}
+
+	var location = dto.Location{
+		ID: user.LocationID,
+	}
+	_, err = repository.GetLocation(database.DbConnection, location)
+	if err != nil {
+		err = errors.New("location with ID " + strconv.Itoa(int(user.LocationID)) + " not found")
+		return user, err
+	}
+
+	var trap = dto.Trap{
+		ID: user.TrapID,
+	}
+	_, err = repository.GetTrap(database.DbConnection, trap)
+	if err != nil {
+		err = errors.New("trap with ID " + strconv.Itoa(int(user.TrapID)) + " not found")
 		return user, err
 	}
 
@@ -62,7 +105,7 @@ func UpdateUser(user structs.User) (structs.User, error) {
 	}
 }
 
-func DeleteUser(user structs.User) (structs.User, error) {
+func DeleteUser(user dto.User) (dto.User, error) {
 	user, err = repository.DeleteUser(database.DbConnection, user)
 	if err != nil {
 		return user, err
@@ -71,27 +114,27 @@ func DeleteUser(user structs.User) (structs.User, error) {
 	}
 }
 
-func Login(user structs.User) (structs.User, error) {
+func Login(user dto.User) (string, error) {
 	// check username and password correct
 	userInDb, err := repository.GetUserByUsername(database.DbConnection, user.Username)
-	if err != nil {
-		return user, err
+	if userInDb == (dto.User{}) {
+		err = errors.New("username not found")
+		return "", err
 	}
 	if user.Password != userInDb.Password {
 		err = errors.New("incorrect password")
-		return user, err
+		return "", err
 	}
 
 	token, err := middleware.GenerateJWT(userInDb.Username, userInDb.Role)
 	if err != nil {
-		return user, err
+		return "", err
 	} else {
-		user.Token = token
-		return user, nil
+		return token, nil
 	}
 }
 
-func GetByUsername(username string) (structs.User, error) {
+func GetByUsername(username string) (dto.User, error) {
 	user, err := repository.GetUserByUsername(database.DbConnection, username)
 	if err != nil {
 		return user, err

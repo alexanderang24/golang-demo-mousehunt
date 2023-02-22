@@ -1,13 +1,10 @@
-package structs
+package dto
 
-type Mouse struct {
+type Location struct {
 	ID          int64  `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	MinPower    int64  `json:"min_power"`
-	MaxPower    int64  `json:"max_power"`
-	Gold        int64  `json:"gold"`
-	LocationID  int64  `json:"location_id"`
+	TravelCost  int64  `json:"travel_cost"`
 	CreatedAt   string `json:"created_at"`
 	UpdatedAt   string `json:"updated_at"`
 }

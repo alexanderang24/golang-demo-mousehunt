@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"golang-demo-mousehunt/services"
-	"golang-demo-mousehunt/structs"
+	"golang-demo-mousehunt/dto"
 	"net/http"
 	"strconv"
 )
@@ -23,7 +23,7 @@ func GetAllUsers(ctx *gin.Context) {
 }
 
 func GetUser(ctx *gin.Context) {
-	var user structs.User
+	var user dto.User
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	user.ID = int64(id)
 
@@ -41,7 +41,7 @@ func GetUser(ctx *gin.Context) {
 }
 
 func Register(ctx *gin.Context) {
-	var user structs.User
+	var user dto.User
 
 	err := ctx.ShouldBindJSON(&user)
 	if err != nil {
@@ -63,7 +63,7 @@ func Register(ctx *gin.Context) {
 }
 
 func InsertUser(ctx *gin.Context) {
-	var user structs.User
+	var user dto.User
 
 	err := ctx.ShouldBindJSON(&user)
 	if err != nil {
@@ -85,7 +85,7 @@ func InsertUser(ctx *gin.Context) {
 }
 
 func UpdateUser(ctx *gin.Context) {
-	var user structs.User
+	var user dto.User
 
 	err := ctx.ShouldBindJSON(&user)
 	if err != nil {
@@ -109,7 +109,7 @@ func UpdateUser(ctx *gin.Context) {
 }
 
 func DeleteUser(ctx *gin.Context) {
-	var user structs.User
+	var user dto.User
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	user.ID = int64(id)
 
@@ -125,7 +125,7 @@ func DeleteUser(ctx *gin.Context) {
 }
 
 func Login(ctx *gin.Context) {
-	var user structs.User
+	var user dto.User
 
 	err := ctx.ShouldBindJSON(&user)
 	if err != nil {
@@ -135,12 +135,12 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
-	user, err = services.Login(user)
+	token, err := services.Login(user)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{ "result": user.Token })
+	ctx.JSON(http.StatusOK, gin.H{ "result": token })
 }

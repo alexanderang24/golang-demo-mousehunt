@@ -79,10 +79,10 @@ func main() {
 	trap.POST("/:id/buy", controllers.BuyTrap)
 
 
-	// hunt history
+	// hunt
 	hunt := router.Group("/hunt", middleware.VerifyJWT)
-	hunt.GET("", controllers.GetAllHuntHistories)
 	hunt.POST("", controllers.DoHunt)
+	hunt.GET("/history", controllers.GetAllHuntHistories)
 
 	err :=router.Run(":" + os.Getenv("PORT"))
 	if err != nil {

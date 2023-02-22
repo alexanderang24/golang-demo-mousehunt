@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang-demo-mousehunt/middleware"
 	"golang-demo-mousehunt/services"
-	"golang-demo-mousehunt/structs"
+	"golang-demo-mousehunt/dto"
 	"net/http"
 	"strconv"
 )
@@ -24,7 +24,7 @@ func GetAllTraps(ctx *gin.Context) {
 }
 
 func GetTrap(ctx *gin.Context) {
-	var trap structs.Trap
+	var trap dto.Trap
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	trap.ID = int64(id)
 
@@ -42,7 +42,7 @@ func GetTrap(ctx *gin.Context) {
 }
 
 func InsertTrap(ctx *gin.Context) {
-	var trap structs.Trap
+	var trap dto.Trap
 
 	err := ctx.ShouldBindJSON(&trap)
 	if err != nil {
@@ -64,7 +64,7 @@ func InsertTrap(ctx *gin.Context) {
 }
 
 func UpdateTrap(ctx *gin.Context) {
-	var trap structs.Trap
+	var trap dto.Trap
 
 	err := ctx.ShouldBindJSON(&trap)
 	if err != nil {
@@ -88,7 +88,7 @@ func UpdateTrap(ctx *gin.Context) {
 }
 
 func DeleteTrap(ctx *gin.Context) {
-	var trap structs.Trap
+	var trap dto.Trap
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	trap.ID = int64(id)
 
@@ -105,7 +105,7 @@ func DeleteTrap(ctx *gin.Context) {
 
 func BuyTrap(ctx *gin.Context) {
 	// check trap exist
-	var trap structs.Trap
+	var trap dto.Trap
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	trap.ID = int64(id)
 	trap, err := services.GetTrap(trap)
@@ -125,6 +125,11 @@ func BuyTrap(ctx *gin.Context) {
 		return
 	}
 	user, err := services.GetByUsername(username)
+	if user == (dto.User{}) {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "username not found",
+		})
+	}
 
 	// buy trap
 	user, err = services.BuyTrap(trap, user)

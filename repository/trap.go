@@ -3,7 +3,7 @@ package repository
 import (
 	"database/sql"
 	"errors"
-	"golang-demo-mousehunt/structs"
+	"golang-demo-mousehunt/dto"
 	"strconv"
 	"time"
 )
@@ -12,8 +12,8 @@ var (
 	err error
 )
 
-func GetAllTraps(db *sql.DB) ([]structs.Trap, error) {
-	var results []structs.Trap
+func GetAllTraps(db *sql.DB) ([]dto.Trap, error) {
+	var results []dto.Trap
 	sqlStatement := "SELECT * FROM trap ORDER BY id"
 
 	var rows, err = db.Query(sqlStatement)
@@ -28,7 +28,7 @@ func GetAllTraps(db *sql.DB) ([]structs.Trap, error) {
 	}(rows)
 
 	for rows.Next() {
-		var trap = structs.Trap{}
+		var trap = dto.Trap{}
 
 		err = rows.Scan(&trap.ID, &trap.Name, &trap.Description, &trap.MinPower, &trap.MaxPower, &trap.Price, &trap.CreatedAt, &trap.UpdatedAt)
 		if err != nil {
@@ -40,21 +40,21 @@ func GetAllTraps(db *sql.DB) ([]structs.Trap, error) {
 	return results, nil
 }
 
-func GetTrap(db *sql.DB, trap structs.Trap) (structs.Trap, error) {
-	var result structs.Trap
+func GetTrap(db *sql.DB, trap dto.Trap) (dto.Trap, error) {
+	var result dto.Trap
 	sqlCheck := "SELECT * FROM trap WHERE id = $1"
 
 	rows := db.QueryRow(sqlCheck, trap.ID)
 
 	err = rows.Scan(&result.ID, &result.Name, &result.Description, &result.MinPower, &result.MaxPower, &result.Price, &result.CreatedAt, &result.UpdatedAt)
-	if result == (structs.Trap{}) {
+	if result == (dto.Trap{}) {
 		err = errors.New("trap with id " + strconv.Itoa(int(trap.ID)) + " not found")
 		return result, err
 	}
 	return result, nil
 }
 
-func InsertTrap(db *sql.DB, trap structs.Trap) (structs.Trap, error) {
+func InsertTrap(db *sql.DB, trap dto.Trap) (dto.Trap, error) {
 	now := time.Now()
 	sqlStatement := "INSERT INTO trap(name, description, min_power, max_power, price, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id"
 	rows := db.QueryRow(sqlStatement, trap.Name, trap.Description, trap.MinPower, trap.MaxPower, trap.Price, now, now)
@@ -70,7 +70,7 @@ func InsertTrap(db *sql.DB, trap structs.Trap) (structs.Trap, error) {
 	}
 }
 
-func UpdateTrap(db *sql.DB, trap structs.Trap) (structs.Trap, error) {
+func UpdateTrap(db *sql.DB, trap dto.Trap) (dto.Trap, error) {
 	_, err = GetTrap(db, trap)
 	if err != nil {
 		return trap, err
@@ -85,11 +85,7 @@ func UpdateTrap(db *sql.DB, trap structs.Trap) (structs.Trap, error) {
 	}
 }
 
-func DeleteTrap(db *sql.DB, trap structs.Trap) (structs.Trap, error) {
-	trap, err = GetTrap(db, trap)
-	if err != nil {
-		return trap, err
-	}
+func DeleteTrap(db *sql.DB, trap dto.Trap) (dto.Trap, error) {
 	sqlStatement := "DELETE FROM trap WHERE id = $1"
 	rows := db.QueryRow(sqlStatement, trap.ID)
 	if rows.Err() != nil {

@@ -3,13 +3,13 @@ package repository
 import (
 	"database/sql"
 	"errors"
-	"golang-demo-mousehunt/structs"
+	"golang-demo-mousehunt/dto"
 	"strconv"
 	"time"
 )
 
-func GetAllLocations(db *sql.DB) ([]structs.Location, error) {
-	var results []structs.Location
+func GetAllLocations(db *sql.DB) ([]dto.Location, error) {
+	var results []dto.Location
 	sqlStatement := "SELECT * FROM location ORDER BY id"
 
 	var rows, err = db.Query(sqlStatement)
@@ -24,7 +24,7 @@ func GetAllLocations(db *sql.DB) ([]structs.Location, error) {
 	}(rows)
 
 	for rows.Next() {
-		var location = structs.Location{}
+		var location = dto.Location{}
 
 		err = rows.Scan(&location.ID, &location.Name, &location.Description, &location.TravelCost, &location.CreatedAt, &location.UpdatedAt)
 		if err != nil {
@@ -36,21 +36,21 @@ func GetAllLocations(db *sql.DB) ([]structs.Location, error) {
 	return results, nil
 }
 
-func GetLocation(db *sql.DB, location structs.Location) (structs.Location, error) {
-	var result structs.Location
+func GetLocation(db *sql.DB, location dto.Location) (dto.Location, error) {
+	var result dto.Location
 	sqlCheck := "SELECT * FROM location WHERE id = $1"
 
 	rows := db.QueryRow(sqlCheck, location.ID)
 
 	err = rows.Scan(&result.ID, &result.Name, &result.Description, &result.TravelCost, &result.CreatedAt, &result.UpdatedAt)
-	if result == (structs.Location{}) {
+	if result == (dto.Location{}) {
 		err = errors.New("location with id " + strconv.Itoa(int(location.ID)) + " not found")
 		return result, err
 	}
 	return result, nil
 }
 
-func InsertLocation(db *sql.DB, location structs.Location) (structs.Location, error) {
+func InsertLocation(db *sql.DB, location dto.Location) (dto.Location, error) {
 	now := time.Now()
 	sqlStatement := "INSERT INTO location(name, description, travel_cost, created_at, updated_at) VALUES($1, $2, $3, $4, $5) RETURNING id"
 	rows := db.QueryRow(sqlStatement, location.Name, location.Description, location.TravelCost, now, now)
@@ -66,7 +66,7 @@ func InsertLocation(db *sql.DB, location structs.Location) (structs.Location, er
 	}
 }
 
-func UpdateLocation(db *sql.DB, location structs.Location) (structs.Location, error) {
+func UpdateLocation(db *sql.DB, location dto.Location) (dto.Location, error) {
 	_, err = GetLocation(db, location)
 	if err != nil {
 		return location, err
@@ -81,7 +81,7 @@ func UpdateLocation(db *sql.DB, location structs.Location) (structs.Location, er
 	}
 }
 
-func DeleteLocation(db *sql.DB, location structs.Location) (structs.Location, error) {
+func DeleteLocation(db *sql.DB, location dto.Location) (dto.Location, error) {
 	location, err = GetLocation(db, location)
 	if err != nil {
 		return location, err

@@ -42,7 +42,7 @@ CREATE TABLE mouse
 CREATE TABLE "user"
 (
     id          SERIAL PRIMARY KEY,
-    username    VARCHAR(256),
+    username    VARCHAR(256) UNIQUE,
     password    VARCHAR(256),
     role        VARCHAR(256),
     gold        INT,
@@ -65,6 +65,7 @@ CREATE TABLE hunt_history
     mouse_id    SERIAL,
     location_id SERIAL,
     trap_id     SERIAL,
+    success     BOOLEAN,
     created_at  TIMESTAMP,
     CONSTRAINT fk_hunt_history_user
         FOREIGN KEY (user_id)
