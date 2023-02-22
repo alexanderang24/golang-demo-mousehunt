@@ -14,7 +14,12 @@ func GetHuntHistoriesByUserId(db *sql.DB, id int64) ([]dto.HuntHistory, error) {
 	if err != nil {
 		return results, err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			return
+		}
+	}(rows)
 
 	for rows.Next() {
 		var history = dto.HuntHistory{}
@@ -32,7 +37,7 @@ func InsertHuntHistory(db *sql.DB, history dto.HuntHistory) (dto.HuntHistory, er
 	sqlStatement := "INSERT INTO hunt_history(user_id, mouse_id, location_id, trap_id, success, created_at) VALUES($1, $2, $3, $4, $5, $6)"
 	rows := db.QueryRow(sqlStatement, history.UserID, history.MouseID, history.LocationID, history.TrapID, history.Success, now)
 	if rows.Err() != nil {
-		err = rows.Err()
+		err := rows.Err()
 		return history, err
 	} else {
 		return history, nil

@@ -3,27 +3,14 @@ package controllers
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"golang-demo-mousehunt/middleware"
 	"golang-demo-mousehunt/services"
-	"golang-demo-mousehunt/dto"
+	"golang-demo-mousehunt/util"
 	"net/http"
 )
 
 func GetAllHuntHistories(ctx *gin.Context) {
 	// get user
-	username, _, err := middleware.ExtractClaims(ctx)
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		return
-	}
-	user, err := services.GetByUsername(username)
-	if user == (dto.User{}) {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "username not found",
-		})
-	}
+	user := util.GetUserFromJWT(ctx)
 
 	// get histories for that user
 	histories, err := services.GetAllHistories(user)
@@ -40,19 +27,7 @@ func GetAllHuntHistories(ctx *gin.Context) {
 
 func DoHunt(ctx *gin.Context) {
 	// get user
-	username, _, err := middleware.ExtractClaims(ctx)
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		return
-	}
-	user, err := services.GetByUsername(username)
-	if user == (dto.User{}) {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "username not found",
-		})
-	}
+	user := util.GetUserFromJWT(ctx)
 
 	// do hunt
 	response, err := services.DoHunt(user)

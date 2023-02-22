@@ -3,9 +3,9 @@ package services
 import (
 	"errors"
 	"golang-demo-mousehunt/database"
-	"golang-demo-mousehunt/middleware"
-	"golang-demo-mousehunt/repository"
 	"golang-demo-mousehunt/dto"
+	"golang-demo-mousehunt/repository"
+	"golang-demo-mousehunt/util"
 	"strconv"
 )
 
@@ -19,7 +19,7 @@ func GetAllUsers() ([]dto.User, error) {
 }
 
 func GetUser(user dto.User) (dto.User, error) {
-	user, err = repository.GetUser(database.DbConnection, user)
+	user, err := repository.GetUser(database.DbConnection, user)
 	if err != nil {
 		return user, err
 	} else {
@@ -43,14 +43,14 @@ func Register(user dto.User) (dto.User, error) {
 
 func InsertUser(user dto.User) (dto.User, error) {
 	if user.Role != "player" && user.Role != "admin" {
-		err = errors.New("invalid role: " + user.Role + ". Value must be player or admin")
+		err := errors.New("invalid role: " + user.Role + ". Value must be player or admin")
 		return user, err
 	}
 
 	var location = dto.Location{
 		ID: user.LocationID,
 	}
-	_, err = repository.GetLocation(database.DbConnection, location)
+	_, err := repository.GetLocation(database.DbConnection, location)
 	if err != nil {
 		err = errors.New("location with ID " + strconv.Itoa(int(user.LocationID)) + " not found")
 		return user, err
@@ -75,14 +75,14 @@ func InsertUser(user dto.User) (dto.User, error) {
 
 func UpdateUser(user dto.User) (dto.User, error) {
 	if user.Role != "player" && user.Role != "admin" {
-		err = errors.New("invalid role: " + user.Role + ". Value must be player or admin")
+		err := errors.New("invalid role: " + user.Role + ". Value must be player or admin")
 		return user, err
 	}
 
 	var location = dto.Location{
 		ID: user.LocationID,
 	}
-	_, err = repository.GetLocation(database.DbConnection, location)
+	_, err := repository.GetLocation(database.DbConnection, location)
 	if err != nil {
 		err = errors.New("location with ID " + strconv.Itoa(int(user.LocationID)) + " not found")
 		return user, err
@@ -106,7 +106,7 @@ func UpdateUser(user dto.User) (dto.User, error) {
 }
 
 func DeleteUser(user dto.User) (dto.User, error) {
-	user, err = repository.DeleteUser(database.DbConnection, user)
+	user, err := repository.DeleteUser(database.DbConnection, user)
 	if err != nil {
 		return user, err
 	} else {
@@ -126,7 +126,7 @@ func Login(user dto.User) (string, error) {
 		return "", err
 	}
 
-	token, err := middleware.GenerateJWT(userInDb.Username, userInDb.Role)
+	token, err := util.GenerateJWT(userInDb.Username, userInDb.Role)
 	if err != nil {
 		return "", err
 	} else {

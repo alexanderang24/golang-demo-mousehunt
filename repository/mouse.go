@@ -69,7 +69,7 @@ func GetMouse(db *sql.DB, mouse dto.Mouse) (dto.Mouse, error) {
 	sqlCheck := "SELECT * FROM mouse WHERE id = $1"
 	rows := db.QueryRow(sqlCheck, mouse.ID)
 
-	err = rows.Scan(&result.ID, &result.Name, &result.Description, &result.MinPower, &result.MaxPower, &result.Gold, &result.LocationID, &result.CreatedAt, &result.UpdatedAt)
+	err := rows.Scan(&result.ID, &result.Name, &result.Description, &result.MinPower, &result.MaxPower, &result.Gold, &result.LocationID, &result.CreatedAt, &result.UpdatedAt)
 	if result == (dto.Mouse{}) {
 		err = errors.New("mouse with id " + strconv.Itoa(int(mouse.ID)) + " not found")
 		return result, err
@@ -82,10 +82,10 @@ func InsertMouse(db *sql.DB, mouse dto.Mouse) (dto.Mouse, error) {
 	sqlStatement := "INSERT INTO mouse(name, description, min_power, max_power, gold, location_id, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id"
 	rows := db.QueryRow(sqlStatement, mouse.Name, mouse.Description, mouse.MinPower, mouse.MaxPower, mouse.Gold, mouse.LocationID, now, now)
 	if rows.Err() != nil {
-		err = rows.Err()
+		err := rows.Err()
 		return mouse, err
 	} else {
-		err = rows.Scan(&mouse.ID)
+		err := rows.Scan(&mouse.ID)
 		if err != nil {
 			return mouse, err
 		}
@@ -97,7 +97,7 @@ func UpdateMouse(db *sql.DB, mouse dto.Mouse) (dto.Mouse, error) {
 	sqlStatement := "UPDATE mouse SET name = $1, description = $2, min_power = $3, max_power = $4, gold = $5, location_id = $6, updated_at = $7 WHERE id = $8"
 	rows := db.QueryRow(sqlStatement, mouse.Name, mouse.Description, mouse.MinPower, mouse.MaxPower, mouse.Gold, mouse.LocationID, time.Now(), mouse.ID)
 	if rows.Err() != nil {
-		err = rows.Err()
+		err := rows.Err()
 		return mouse, err
 	} else {
 		return mouse, nil
@@ -108,7 +108,7 @@ func DeleteMouse(db *sql.DB, mouse dto.Mouse) (dto.Mouse, error) {
 	sqlStatement := "DELETE FROM mouse WHERE id = $1"
 	rows := db.QueryRow(sqlStatement, mouse.ID)
 	if rows.Err() != nil {
-		err = rows.Err()
+		err := rows.Err()
 		return mouse, err
 	} else {
 		return mouse, nil

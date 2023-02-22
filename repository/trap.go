@@ -8,10 +8,6 @@ import (
 	"time"
 )
 
-var (
-	err error
-)
-
 func GetAllTraps(db *sql.DB) ([]dto.Trap, error) {
 	var results []dto.Trap
 	sqlStatement := "SELECT * FROM trap ORDER BY id"
@@ -40,8 +36,7 @@ func GetAllTraps(db *sql.DB) ([]dto.Trap, error) {
 	return results, nil
 }
 
-func GetTrap(db *sql.DB, trap dto.Trap) (dto.Trap, error) {
-	var result dto.Trap
+func GetTrap(db *sql.DB, trap dto.Trap) (result dto.Trap, err error) {
 	sqlCheck := "SELECT * FROM trap WHERE id = $1"
 
 	rows := db.QueryRow(sqlCheck, trap.ID)
@@ -59,10 +54,10 @@ func InsertTrap(db *sql.DB, trap dto.Trap) (dto.Trap, error) {
 	sqlStatement := "INSERT INTO trap(name, description, min_power, max_power, price, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id"
 	rows := db.QueryRow(sqlStatement, trap.Name, trap.Description, trap.MinPower, trap.MaxPower, trap.Price, now, now)
 	if rows.Err() != nil {
-		err = rows.Err()
+		err := rows.Err()
 		return trap, err
 	} else {
-		err = rows.Scan(&trap.ID)
+		err := rows.Scan(&trap.ID)
 		if err != nil {
 			return trap, err
 		}
@@ -71,7 +66,7 @@ func InsertTrap(db *sql.DB, trap dto.Trap) (dto.Trap, error) {
 }
 
 func UpdateTrap(db *sql.DB, trap dto.Trap) (dto.Trap, error) {
-	_, err = GetTrap(db, trap)
+	_, err := GetTrap(db, trap)
 	if err != nil {
 		return trap, err
 	}
@@ -89,7 +84,7 @@ func DeleteTrap(db *sql.DB, trap dto.Trap) (dto.Trap, error) {
 	sqlStatement := "DELETE FROM trap WHERE id = $1"
 	rows := db.QueryRow(sqlStatement, trap.ID)
 	if rows.Err() != nil {
-		err = rows.Err()
+		err := rows.Err()
 		return trap, err
 	} else {
 		return trap, nil

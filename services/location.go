@@ -3,8 +3,8 @@ package services
 import (
 	"errors"
 	"golang-demo-mousehunt/database"
-	"golang-demo-mousehunt/repository"
 	"golang-demo-mousehunt/dto"
+	"golang-demo-mousehunt/repository"
 )
 
 func GetAllLocations() ([]dto.Location, error) {
@@ -17,7 +17,7 @@ func GetAllLocations() ([]dto.Location, error) {
 }
 
 func GetLocation(location dto.Location) (dto.Location, error) {
-	location, err = repository.GetLocation(database.DbConnection, location)
+	location, err := repository.GetLocation(database.DbConnection, location)
 	if err != nil {
 		return location, err
 	} else {
@@ -26,7 +26,7 @@ func GetLocation(location dto.Location) (dto.Location, error) {
 }
 
 func InsertLocation(location dto.Location) (dto.Location, error) {
-	location, err = repository.InsertLocation(database.DbConnection, location)
+	location, err := repository.InsertLocation(database.DbConnection, location)
 	if err != nil {
 		return location, err
 	} else {
@@ -35,7 +35,7 @@ func InsertLocation(location dto.Location) (dto.Location, error) {
 }
 
 func UpdateLocation(location dto.Location) (dto.Location, error) {
-	location, err = repository.UpdateLocation(database.DbConnection, location)
+	location, err := repository.UpdateLocation(database.DbConnection, location)
 	if err != nil {
 		return location, err
 	} else {
@@ -44,7 +44,7 @@ func UpdateLocation(location dto.Location) (dto.Location, error) {
 }
 
 func DeleteLocation(location dto.Location) (dto.Location, error) {
-	location, err = repository.DeleteLocation(database.DbConnection, location)
+	location, err := repository.DeleteLocation(database.DbConnection, location)
 	if err != nil {
 		return location, err
 	} else {
@@ -63,7 +63,7 @@ func TravelToLocation(location dto.Location, user dto.User) (dto.User, error) {
 		user.Gold = user.Gold - location.TravelCost
 		user.LocationID = location.ID
 
-		user, err = UpdateUser(user)
+		user, _ := UpdateUser(user)
 		return user, nil
 	}
 }

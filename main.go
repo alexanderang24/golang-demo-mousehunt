@@ -68,6 +68,8 @@ func main() {
 	user.DELETE("/:id", middleware.AdminOnly, controllers.DeleteUser)
 	router.POST("/user/register", controllers.Register)
 	router.POST("/user/login", controllers.Login)
+	user.GET("/location", controllers.GetCurrentLocationInfo)
+	user.GET("/profile", controllers.GetMyInfo)
 
 	// trap
 	trap := router.Group("/trap", middleware.VerifyJWT)

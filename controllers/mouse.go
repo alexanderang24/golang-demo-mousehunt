@@ -3,8 +3,8 @@ package controllers
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"golang-demo-mousehunt/services"
 	"golang-demo-mousehunt/dto"
+	"golang-demo-mousehunt/services"
 	"net/http"
 	"strconv"
 )

@@ -3,9 +3,9 @@ package controllers
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"golang-demo-mousehunt/middleware"
-	"golang-demo-mousehunt/services"
 	"golang-demo-mousehunt/dto"
+	"golang-demo-mousehunt/services"
+	"golang-demo-mousehunt/util"
 	"net/http"
 	"strconv"
 )
@@ -118,19 +118,7 @@ func TravelToLocation(ctx *gin.Context) {
 	}
 
 	// get user
-	username, _, err := middleware.ExtractClaims(ctx)
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		return
-	}
-	user, err := services.GetByUsername(username)
-	if user == (dto.User{}) {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "username not found",
-		})
-	}
+	user := util.GetUserFromJWT(ctx)
 
 	// travel
 	user, err = services.TravelToLocation(location, user)

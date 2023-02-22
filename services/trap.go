@@ -3,12 +3,8 @@ package services
 import (
 	"errors"
 	"golang-demo-mousehunt/database"
-	"golang-demo-mousehunt/repository"
 	"golang-demo-mousehunt/dto"
-)
-
-var (
-	err error
+	"golang-demo-mousehunt/repository"
 )
 
 func GetAllTraps() ([]dto.Trap, error) {
@@ -21,7 +17,7 @@ func GetAllTraps() ([]dto.Trap, error) {
 }
 
 func GetTrap(trap dto.Trap) (dto.Trap, error) {
-	trap, err = repository.GetTrap(database.DbConnection, trap)
+	trap, err := repository.GetTrap(database.DbConnection, trap)
 	if err != nil {
 		return trap, err
 	} else {
@@ -31,11 +27,11 @@ func GetTrap(trap dto.Trap) (dto.Trap, error) {
 
 func InsertTrap(trap dto.Trap) (dto.Trap, error) {
 	if trap.MaxPower < trap.MinPower {
-		err = errors.New("max power should not be lower than min power")
+		err := errors.New("max power should not be lower than min power")
 		return trap, err
 	}
 
-	trap, err = repository.InsertTrap(database.DbConnection, trap)
+	trap, err := repository.InsertTrap(database.DbConnection, trap)
 	if err != nil {
 		return trap, err
 	} else {
@@ -45,11 +41,10 @@ func InsertTrap(trap dto.Trap) (dto.Trap, error) {
 
 func UpdateTrap(trap dto.Trap) (dto.Trap, error) {
 	if trap.MaxPower < trap.MinPower {
-		err = errors.New("max power should not be lower than min power")
+		err := errors.New("max power should not be lower than min power")
 		return trap, err
 	}
-
-	trap, err = repository.UpdateTrap(database.DbConnection, trap)
+	trap, err := repository.UpdateTrap(database.DbConnection, trap)
 	if err != nil {
 		return trap, err
 	} else {
@@ -58,7 +53,7 @@ func UpdateTrap(trap dto.Trap) (dto.Trap, error) {
 }
 
 func DeleteTrap(trap dto.Trap) (dto.Trap, error) {
-	trap, err = GetTrap(trap)
+	trap, err := GetTrap(trap)
 	if err != nil {
 		return trap, err
 	}
@@ -81,8 +76,7 @@ func BuyTrap(trap dto.Trap, user dto.User) (dto.User, error) {
 	} else {
 		user.Gold = user.Gold - trap.Price
 		user.TrapID = trap.ID
-
-		user, err = UpdateUser(user)
+		user, _ = UpdateUser(user)
 		return user, nil
 	}
 }

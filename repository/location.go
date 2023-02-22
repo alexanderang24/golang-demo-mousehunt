@@ -42,7 +42,7 @@ func GetLocation(db *sql.DB, location dto.Location) (dto.Location, error) {
 
 	rows := db.QueryRow(sqlCheck, location.ID)
 
-	err = rows.Scan(&result.ID, &result.Name, &result.Description, &result.TravelCost, &result.CreatedAt, &result.UpdatedAt)
+	err := rows.Scan(&result.ID, &result.Name, &result.Description, &result.TravelCost, &result.CreatedAt, &result.UpdatedAt)
 	if result == (dto.Location{}) {
 		err = errors.New("location with id " + strconv.Itoa(int(location.ID)) + " not found")
 		return result, err
@@ -55,10 +55,10 @@ func InsertLocation(db *sql.DB, location dto.Location) (dto.Location, error) {
 	sqlStatement := "INSERT INTO location(name, description, travel_cost, created_at, updated_at) VALUES($1, $2, $3, $4, $5) RETURNING id"
 	rows := db.QueryRow(sqlStatement, location.Name, location.Description, location.TravelCost, now, now)
 	if rows.Err() != nil {
-		err = rows.Err()
+		err := rows.Err()
 		return location, err
 	} else {
-		err = rows.Scan(&location.ID)
+		err := rows.Scan(&location.ID)
 		if err != nil {
 			return location, err
 		}
@@ -67,7 +67,7 @@ func InsertLocation(db *sql.DB, location dto.Location) (dto.Location, error) {
 }
 
 func UpdateLocation(db *sql.DB, location dto.Location) (dto.Location, error) {
-	_, err = GetLocation(db, location)
+	_, err := GetLocation(db, location)
 	if err != nil {
 		return location, err
 	}
@@ -82,7 +82,7 @@ func UpdateLocation(db *sql.DB, location dto.Location) (dto.Location, error) {
 }
 
 func DeleteLocation(db *sql.DB, location dto.Location) (dto.Location, error) {
-	location, err = GetLocation(db, location)
+	location, err := GetLocation(db, location)
 	if err != nil {
 		return location, err
 	}
