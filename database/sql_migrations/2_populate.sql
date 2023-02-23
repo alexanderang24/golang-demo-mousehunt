@@ -23,7 +23,7 @@ VALUES  ('Grey Mouse', 50, 150, 500, 1, 'A very common mouse. They pose little c
         ('Zombie Mouse', 700, 975, 250, 3, 'All mice have a weakness, but how do you kill something that''s already dead...?', now(), now());
 
 INSERT INTO "user"(username, password, role, gold, location_id, trap_id, created_at, updated_at)
-VALUES  ('admin', 'admin', 'admin', 0, 1, 1, now(), now()),
+VALUES  ('admin', 'admin', 'admin', 1000000, 1, 1, now(), now()),
         ('john', 'password', 'player', 500, 1, 1, now(), now());
 
 -- +migrate StatementEnd
