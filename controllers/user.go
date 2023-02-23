@@ -60,7 +60,7 @@ func Register(ctx *gin.Context) {
 		})
 		return
 	}
-	result := fmt.Sprintf("Registration success! Welcome, Hunters %s!", user.Username)
+	result := fmt.Sprintf("Registration success! Welcome, Hunter %s!", user.Username)
 	ctx.JSON(http.StatusOK, gin.H{ "result": result })
 }
 
